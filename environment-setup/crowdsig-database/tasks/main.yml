@@ -1,0 +1,23 @@
+# file: postgresql/tasks/configure.yml
+
+- name: Crowdsig Database | Copy ddl to remote
+  copy:
+    src: ddl.sql
+    dest: "{{ crowdsig_ddl_dir }}/ddl.sql"
+    owner: "{{ crowdsig_ddl_owner }}"
+    group: "{{ crowdsig_ddl_group }}"
+    mode: 0755
+
+- name: Crowdsig Database | Copy cities DML to remote
+  copy:
+    src: cities_dml.sql
+    dest: "{{ crowdsig_ddl_dir }}/cities_dml.sql"
+    owner: "{{ crowdsig_ddl_owner }}"
+    group: "{{ crowdsig_ddl_group }}"
+    mode: 0755
+
+- name: Crowdsig Database | Execute DDL via psql
+  command: "psql -U crowdsig -d postgres -f {{ crowdsig_ddl_dir }}/ddl.sql"
+
+- name: Crowdsig Database | Execute City DML via psql
+  command: "psql -U crowdsig -d crowdsig -f {{ crowdsig_ddl_dir }}/cities_dml.sql"

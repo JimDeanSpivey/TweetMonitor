@@ -1,0 +1,9 @@
+# configure application
+spring.main.web-environment=false
+spring.thymeleaf.cache=false
+
+# configure twitter
+io.crowdsignal.twitter.oath.appId=myKey
+io.crowdsignal.twitter.oath.appSecret=myKey
+io.crowdsignal.twitter.oath.accessToken=myKey
+io.crowdsignal.twitter.oath.accessTokenSecret=myKey

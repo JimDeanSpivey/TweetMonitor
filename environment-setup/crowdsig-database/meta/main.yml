@@ -1,0 +1,9 @@
+# file: crowdsig-ddl/meta/main.yml
+
+galaxy_info:
+  author: crowdsig
+  company: crowdsig
+  description: "Load the Tweet database into postgres. This database saves all streaming twitter API responses as JSONB datatype."
+  min_ansible_version: 1.9.4
+
+dependencies: [postgresql]
