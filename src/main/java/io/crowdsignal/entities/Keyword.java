@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  * @author Jimmy Spivey
@@ -20,14 +21,17 @@ public class Keyword {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
-    private KeywordType type;
-    @OneToMany(mappedBy = "keyword")
+    @OneToOne
+    @JoinColumn(name = "type", referencedColumnName = "code")
+    private KeywordType keywordType;
+    @OneToMany//(mappedBy = "keyword")
+    @JoinColumn(name = "keyword_id", referencedColumnName = "id")
     private Set<KeywordAlias> aliases;
     @ManyToMany
     @JoinTable(
-        name="keyword_twitter_api_node",
-        joinColumns = @JoinColumn(name="keyword_id"),
-        inverseJoinColumns = @JoinColumn(name="api_node_id")
+        name = "keyword_twitter_api_node",
+        joinColumns = @JoinColumn(name = "keyword_id"),
+        inverseJoinColumns = @JoinColumn(name = "api_node_id")
     )
     private Set<TwitterApiNode> nodes;
 
@@ -43,11 +47,11 @@ public class Keyword {
     public void setName(String name) {
         this.name = name;
     }
-    public KeywordType getType() {
-        return this.type;
+    public KeywordType getKeywordType() {
+        return this.keywordType;
     }
-    public void setType(KeywordType type) {
-        this.type = type;
+    public void setKeywordType(KeywordType keywordType) {
+        this.keywordType = keywordType;
     }
     public Set<KeywordAlias> getAliases() {
         return this.aliases;
@@ -55,4 +59,5 @@ public class Keyword {
     public void setAliases(Set<KeywordAlias> aliases) {
         this.aliases = aliases;
     }
+
 }

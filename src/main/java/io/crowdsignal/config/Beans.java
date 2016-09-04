@@ -1,13 +1,9 @@
 package io.crowdsignal.config;
 
 import io.crowdsignal.twitter.scan.TweetStreamListener;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import twitter4j.TwitterStream;
@@ -23,10 +19,17 @@ public class Beans {
 
     // redis
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
-        jedisConnectionFactory.setUsePool(true);
-        return jedisConnectionFactory;
+    public JedisConnectionFactory jedisConnectionFactory(
+        @Value("${redis.hostname}") String hostname,
+        @Value("${redis.port}") String port,
+        @Value("${redis.password}") String password
+    ) {
+        JedisConnectionFactory factory = new JedisConnectionFactory();
+        factory.setUsePool(true);
+        factory.setHostName(hostname);
+        factory.setPort(Integer.valueOf(port));
+        factory.setPassword(password);
+        return factory;
     }
 
     @Bean
@@ -39,38 +42,7 @@ public class Beans {
     }
 
     @Bean
-    @Primary
-    @ConfigurationProperties(prefix="io.crowdsignal.db.postgres.datasource")
-    public DataSource postgresDatasource() {
-        return DataSourceBuilder.create().build();
-    }
-
-//    @Bean
-//    public DataSource dataSource(
-//        @Value("${io.crowdsignal.db.url}") String url,
-//        @Value("${io.crowdsignal.db.driver}") String driver,
-//        @Value("${io.crowdsignal.db.username}") String username,
-//        @Value("${io.crowdsignal.db.password}") String password
-//    ) {
-//        DriverManagerDataSource ds = new DriverManagerDataSource();
-//        ds.setUrl(url);
-//        ds.setDriverClassName(driver);
-//        ds.setUsername(username);
-//        ds.setPassword(password);
-//        return ds;
-//    }
-//
-//    @Bean
-//    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-//        return new JdbcTemplate(dataSource);
-//    }
-//
-//    @Bean
-//    public PlatformTransactionManager txManager(DataSource dataSource) {
-//        return new DataSourceTransactionManager(dataSource);
-//    }
-
-    @Bean
+    //TODO: Manage these in twitter_api_node table
     public TwitterStream twitterStream(
             @Value("${io.crowdsignal.twitter.oath.appId}") String appId,
             @Value("${io.crowdsignal.twitter.oath.appSecret}") String appSecret,

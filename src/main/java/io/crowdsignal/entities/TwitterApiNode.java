@@ -2,6 +2,7 @@ package io.crowdsignal.entities;
 
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -13,6 +14,7 @@ import javax.persistence.ManyToMany;
 //@Table(name="twitter_api_node")
 public class TwitterApiNode extends AuditColumnEntity {
 
+    @Id
     private Integer id;
     private String name;
     @ManyToMany

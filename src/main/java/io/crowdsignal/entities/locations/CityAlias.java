@@ -1,19 +1,24 @@
 package io.crowdsignal.entities.locations;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 /**
  * @author Jimmy Spivey
  */
-@Entity
-@Table(name="city_alias")
+//@Entity
 public class CityAlias {
-
 
     private Integer cityId;
     private String alias;
 
-
-
+    public Integer getCityId() {
+        return this.cityId;
+    }
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
+    }
+    public String getAlias() {
+        return this.alias;
+    }
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 }

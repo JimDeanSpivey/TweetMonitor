@@ -19,8 +19,8 @@ CREATE RULE "tweet_on_duplicate_ignore" AS ON INSERT TO "tweet"
 
 CREATE TABLE city (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  search_name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE,
+  search_name TEXT NOT NULL UNIQUE,
   latitude DECIMAL(10,6) NOT NULL,
   longitude DECIMAL(10,6) NOT NULL,
   country_code TEXT NOT NULL,
@@ -32,33 +32,39 @@ CREATE TABLE city (
   updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
+--This table only exists to bulk import the cities5000.txt into a normalized structure. It is not reference directly by applications
+--Instead, keyword_alias is to be used only
 CREATE TABLE city_alias (
   city_id INTEGER NOT NULL REFERENCES city(id),
   alias TEXT NOT NULL,
   PRIMARY KEY(city_id, alias)
 );
 
-CREATE TABLE keyword (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  type INTEGER NOT NULL REFERENCES keyword_type(code)
-);
-
-CREATE TABLE keyword_alias (
-  keyword_id INTEGER NOT NULL REFERENCES keyword(id),
-  alias TEXT NOT NULL,
-  PRIMARY KEY(keyword_id, alias)
-);
-
+-- types: manually added/custom, city
 CREATE TABLE keyword_type (
   code TEXT PRIMARY KEY,
   description TEXT NOT NULL
 );
--- types: manually added/custom, city
+
+CREATE TABLE keyword (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  type TEXT NOT NULL REFERENCES keyword_type(code)
+);
+
+CREATE TABLE keyword_alias (
+  id SERIAL PRIMARY KEY,
+  keyword_id INTEGER NOT NULL UNIQUE REFERENCES keyword(id),
+  alias TEXT NOT NULL
+);
 
 CREATE TABLE twitter_api_node (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE,
+  app_id TEXT,
+  app_secret TEXT,
+  access_token TEXT,
+  access_token_secret TEXT,
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -85,7 +91,7 @@ CREATE TRIGGER trigger_twitter_api_node_updated BEFORE UPDATE ON twitter_api_nod
 -- VIEWS
 CREATE VIEW keywords_cities_us_large
 AS SELECT c.search_name keyword, a.alias alias
-FROM cities c join city_aliases a on c.id = a.city_id
+FROM city c join city_alias a on c.id = a.city_id
 where c.country_code = 'US' and population >= 200000;
 
 

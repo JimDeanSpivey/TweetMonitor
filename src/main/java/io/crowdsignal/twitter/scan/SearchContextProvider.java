@@ -1,17 +1,22 @@
 package io.crowdsignal.twitter.scan;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import io.crowdsignal.entities.SearchTopic;
+import io.crowdsignal.entities.Keyword;
+import io.crowdsignal.entities.KeywordAlias;
+import io.crowdsignal.twitter.dataaccess.KeywordRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,70 +28,54 @@ public class SearchContextProvider {
     private Logger log = LoggerFactory.getLogger(SearchContextProvider.class);
 
     @Autowired
-    private SearchContextRepo searchContextRepo;
+    private KeywordRepository keywordRepo;
 
-    private Collection<SearchTopic> searchTerms;
-    private Collection<String> flattenedSearchTerms;
-    private Map<String,String> searchTermsToNames;
+    @Value("${io.crowdsignal.node.name}")
+    private String nodeName;
 
-    public String searchTermToName(String searchTerm) {
-        return searchTermsToNames.get(searchTerm);
+    private Collection<Keyword> keywords;
+    private Collection<String> flattenedKeywords;
+    private Multimap<String,String> keywordsToAliases;
+
+    public Collection<String> searchTermToName(String searchTerm) {
+        return keywordsToAliases.get(searchTerm);
     }
 
-
-    public Collection<String> searchTerms() {
-        return flattenedSearchTerms;
+    public Collection<String> allKeywords() {
+        return flattenedKeywords;
     }
 
-    public Collection<SearchTopic> getSearchTerms() {
-        return searchTerms;
-    }
-
+    @Transactional
     public void init() {
         lookupSearchTerms();
         flattenAndIndexTerms();
     }
 
     private void lookupSearchTerms() {
-        // Query from couchdb
-        List<SearchTopic> searchTerms = searchContextRepo.findSearchTerms(null);
-
-        // Additional search terms defined in ExtraCities.json
-        //TODO: implement query with postgres
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            List<SearchContextEntity> fromFile = mapper.readValue(
-//                    getClass().getResourceAsStream("/io/crowdsignal/config/ExtraCities.json"),
-//                    new TypeReference<List<SearchContextEntity>>() {
-//                    });
-//            searchTerms.addAll(fromFile);
-//        } catch (DbAccessException e) {
-//            log.warn("Most likely a read timeout due to running the first time. The view generation " +
-//                    "has not completed yet. Will simply retry the query again. If this message keeps" +
-//                    " looping something obviously went wrong.", e);
-//            lookupSearchTerms();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        this.searchTerms = Collections.unmodifiableCollection(searchTerms);
+        keywords = keywordRepo.findByNodes_name(nodeName);
     }
 
-    // This code is confusing..
     private void flattenAndIndexTerms() {
         Multimap<String,String> indexed = ArrayListMultimap.create();
-        ArrayList<String> flattened = searchTerms.stream().flatMap(e -> {
-            List<String> aliases = new ArrayList<>();
+        ArrayList<String> flattened = keywords.stream().flatMap(e -> {
+            Set<String> aliases = new HashSet<>();
             aliases.add(e.getName());
-            if (e.getSearch_aliases() != null)
-                aliases.addAll(e.getSearch_aliases());
-            // Build Alias -> Name index
+            if (e.getAliases() != null)
+                aliases.addAll(getAliasesAsStrings(e.getAliases()));
+            // Also build map of aliases
             aliases.forEach(a -> indexed.put(a, e.getName()));
             // Return flattened stream (all names + aliases as a single stream)
             return aliases.stream();
         }).collect(Collectors.toCollection(ArrayList::new));
 
-        flattenedSearchTerms = Collections.unmodifiableCollection(flattened);
-        searchTermsToNames = Collections.unmodifiableMap(indexed);
+        flattenedKeywords = Collections.unmodifiableCollection(flattened);
+        keywordsToAliases = ImmutableMultimap.copyOf(indexed);
+    }
+
+    private Set<String> getAliasesAsStrings(Set<KeywordAlias> aliases) {
+            return aliases.stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
     }
 
 }

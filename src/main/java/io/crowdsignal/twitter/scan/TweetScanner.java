@@ -28,10 +28,13 @@ public class TweetScanner {
 
     public void run() {
         log.debug("Running TweetScanner");
-        Collection<String> searchTerms = searchContextProvider.searchTerms();
+        Collection<String> keywords = searchContextProvider.allKeywords();
+        StringBuilder formatted = new StringBuilder();
+        keywords.stream().forEach(formatted::append);
+        log.info("Tracking words: {}", formatted);
         FilterQuery filterQuery = new FilterQuery();
         filterQuery.language("en");
-        filterQuery.track(searchTerms.toArray(new String[searchTerms.size()]));
+        filterQuery.track(keywords.toArray(new String[keywords.size()]));
         twitterStream.filter(filterQuery);
         log.debug("Stream invoked");
 

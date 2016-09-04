@@ -1,6 +1,5 @@
 package io.crowdsignal.entities.locations;
 
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,7 +21,6 @@ public class City {
     // Altername names loaded from cities5000.txt, lots verbosity and translations that aren't that helpful
     //private List<String> alternate_names;
     // Better/manually curated search aliases, eg: for "New York City": NYC, New York,
-    private List<CityAlias> search_aliases;
     private Float latitude;
     private Float longitude;
     private String country_name;
@@ -56,15 +54,6 @@ public class City {
 
     public void setSearch_name(String search_name) {
         this.search_name = search_name;
-    }
-
-
-    public List<CityAlias> getSearch_aliases() {
-        return search_aliases;
-    }
-
-    public void setSearch_aliases(List<CityAlias> search_aliases) {
-        this.search_aliases = search_aliases;
     }
 
     public Float getLatitude() {

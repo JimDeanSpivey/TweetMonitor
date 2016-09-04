@@ -76,7 +76,7 @@ public class TweetStreamListener implements StatusListener {
         String text = tweet.getText();
         List<String> tokens = Arrays.asList(text.split(" "));
         // Extract cities (contexts)
-        Set<String> citiesFound = searchContextProvider.searchTerms().stream()
+        Set<String> citiesFound = searchContextProvider.allKeywords().stream()
                 .filter(tweet.getText()::contains)
                 .collect(Collectors.toSet());
         citiesFound.forEach(c -> persistWordCounts(tokens, c, tweet));

@@ -1,6 +1,8 @@
 package io.crowdsignal.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author Jimmy Spivey
@@ -8,14 +10,23 @@ import javax.persistence.Entity;
 @Entity
 public class KeywordAlias {
 
-    private Integer keyword_id;
+    @Id
+    private Integer id;
+    @Column(name="keyword_id") //Fixes some hibernate duplicate key bug. Naming strategy seems to be off
+    private Integer keywordId;
     private String alias;
 
-    public Integer getKeyword_id() {
-        return this.keyword_id;
+    public Integer getId() {
+        return this.id;
     }
-    public void setKeyword_id(Integer keyword_id) {
-        this.keyword_id = keyword_id;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public Integer getKeywordId() {
+        return this.keywordId;
+    }
+    public void setKeywordId(Integer keywordId) {
+        this.keywordId = keywordId;
     }
     public String getAlias() {
         return this.alias;
