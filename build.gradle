@@ -1,7 +1,8 @@
+ext {
+    springBootVersion = '1.4.0.RELEASE'
+}
+
 buildscript {
-    ext {
-        springBootVersion = '1.2.5.RELEASE'
-    }
     repositories {
         mavenCentral()
     }
@@ -28,39 +29,48 @@ repositories {
     mavenLocal()
 }
 
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.data:spring-data-releasetrain:Hopper-SR2'
-    }
+//dependencyManagement {
+//    imports {
+//        mavenBom 'org.springframework.data:spring-data-releasetrain:Hopper-SR2'
+//    }
+//}
+
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 dependencies {
-
     // Spring Boot
     compile 'org.springframework.boot:spring-boot-starter'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
 
-    // Misc
-    compile 'joda-time:joda-time:2.3'
-    compile 'org.apache.commons:commons-lang3:3.0'
-    compile 'org.slf4j:jul-to-slf4j:1.7.5'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
-
     // Redis
-    compile 'redis.clients:jedis:2.4.2'
-    compile ('org.springframework.data:spring-data-redis:1.5.1.RELEASE') {
-        exclude group: 'commons-logging'
-    }
+    compile 'redis.clients:jedis:2.9.0'
+    compile 'org.springframework.data:spring-data-redis:1.7.2.RELEASE'
 
-    compile 'org.springframework.boot:spring-boot-starter'
-    compile 'org.springframework:spring-jdbc'
-    compile group: 'javax.persistence', name: 'persistence-api', version: '1.0'
-    compile 'org.springframework.data:spring-data-jpa'
+    // Relational Persistence
+    compile group: 'org.springframework.boot',
+            name: 'spring-boot-starter-data-jpa',
+            version: "${springBootVersion}"
+
+    //compile 'org.springframework.data:spring-data-jpa'
+    //compile 'org.hibernate:hibernate-entitymanager:5.2.2.Final'
+    //compile 'org.hibernate:hibernate-core:5.2.2.Final'
+    compile 'org.postgresql:postgresql:9.4.1209'
+    //compile 'org.springframework:spring-jdbc'
+
+
+    //compile group: 'javax.persistence', name: 'persistence-api', version: '1.0'
     //compile 'org.springframework.data:spring-data-rest'
 
     //Twitter API
     compile 'org.twitter4j:twitter4j-stream:4.0.4'
 
+    // Misc
+    compile 'joda-time:joda-time:2.3'
+    //compile 'org.apache.commons:commons-lang3:3.0'
+    compile 'org.slf4j:jul-to-slf4j:1.7.5'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
 }

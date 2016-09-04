@@ -24,15 +24,11 @@ public class TweetCountRepo {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-//    private final static SimpleDateFormat dateAsKeySdf = new SimpleDateFormat("yyyyMMdd:HHmm");
     private final static DateTimeFormatter dateAsKeyDtf =
         DateTimeFormat.forPattern("yyyyMMdd:HHmm")
         .withLocale(Locale.US)
         .withZone(DateTimeZone.UTC);
-//    static {
-//        dateAsKeySdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-//    }
-//
+
     public void incrementWordCount(String context, Status tweet, String word, Integer count) {
 
         String key = getKey(context, tweet);

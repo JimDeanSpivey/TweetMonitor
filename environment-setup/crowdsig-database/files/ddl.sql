@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS crowdsig;
 CREATE DATABASE crowdsig;
 \connect crowdsig;
 
-CREATE TABLE tweets (
+CREATE TABLE tweet (
     id NUMERIC(20) PRIMARY KEY,
     text VARCHAR(140) NOT NULL,
     tweeted TIMESTAMP NOT NULL,
@@ -12,12 +12,12 @@ CREATE TABLE tweets (
     created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
-CREATE RULE "tweets_on_duplicate_ignore" AS ON INSERT TO "tweets"
-  WHERE EXISTS(SELECT 1 FROM tweets 
+CREATE RULE "tweet_on_duplicate_ignore" AS ON INSERT TO "tweet"
+  WHERE EXISTS(SELECT 1 FROM tweet 
               WHERE id=NEW.id)
   DO INSTEAD NOTHING;
 
-CREATE TABLE cities (
+CREATE TABLE city (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   search_name TEXT NOT NULL,
@@ -32,24 +32,43 @@ CREATE TABLE cities (
   updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
-CREATE TABLE city_aliases (
-  city_id INTEGER NOT NULL REFERENCES cities(id),
+CREATE TABLE city_alias (
+  city_id INTEGER NOT NULL REFERENCES city(id),
   alias TEXT NOT NULL,
   PRIMARY KEY(city_id, alias)
 );
 
-CREATE TABLE custom_keywords (
+CREATE TABLE keyword (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  type INTEGER NOT NULL REFERENCES keyword_type(code)
 );
 
-CREATE TABLE custom_keyword_aliases (
-  keyword_id INTEGER NOT NULL REFERENCES custom_keywords(id),
+CREATE TABLE keyword_alias (
+  keyword_id INTEGER NOT NULL REFERENCES keyword(id),
   alias TEXT NOT NULL,
   PRIMARY KEY(keyword_id, alias)
 );
 
--- TRIGGERS
+CREATE TABLE keyword_type (
+  code TEXT PRIMARY KEY,
+  description TEXT NOT NULL
+);
+-- types: manually added/custom, city
+
+CREATE TABLE twitter_api_node (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE keyword_twitter_api_node (
+  api_node_id INTEGER NOT NULL REFERENCES twitter_api_node(id),
+  keyword_id INTEGER NOT NULL REFERENCES keyword(id),
+  PRIMARY KEY(api_node_id, keyword_id)
+);
+
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -58,7 +77,9 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER trigger_cities_updated BEFORE UPDATE ON cities
+CREATE TRIGGER trigger_city_updated BEFORE UPDATE ON city
+  FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER trigger_twitter_api_node_updated BEFORE UPDATE ON twitter_api_node
   FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 -- VIEWS

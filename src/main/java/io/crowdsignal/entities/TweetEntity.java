@@ -3,12 +3,14 @@ package io.crowdsignal.entities;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * Created by jspivey on 7/23/15.
  */
 @Entity
-public class TweetEntity extends AuditColumnEntity{
+@Table(name="tweet")
+public class TweetEntity {
 
     @Id
     private Long id;
@@ -17,7 +19,14 @@ public class TweetEntity extends AuditColumnEntity{
     private Date tweeted;
     private Double latitude;
     private Double longitude;
+    private Date created;
 
+    public Date getCreated() {
+        return this.created;
+    }
+    public void setCreated(Date created) {
+        this.created = created;
+    }
     public Long getId() {
         return this.id;
     }

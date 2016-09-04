@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * Created by jspivey on 9/7/15.
  */
 @Entity
-@Table(name="cities")
+@Table(name="city")
 public class City {
 
     @Id
