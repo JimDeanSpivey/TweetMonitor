@@ -1,6 +1,7 @@
 package io.crowdsignal.entities;
 
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,6 +20,7 @@ public class TweetEntity {
     private Date tweeted;
     private Double latitude;
     private Double longitude;
+    @Column(insertable = false)
     private Date created;
 
     public Date getCreated() {

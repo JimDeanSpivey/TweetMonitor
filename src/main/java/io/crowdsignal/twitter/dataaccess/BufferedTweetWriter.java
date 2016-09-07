@@ -16,11 +16,6 @@ import org.springframework.stereotype.Component;
 public class BufferedTweetWriter {
 
     private static final Logger log = LoggerFactory.getLogger(BufferedTweetWriter.class);
-//    private static final String INSERT_STATEMENT = new StringBuilder()
-//        .append("INSERT_STATEMENT INTO tweets (id, data) ")
-//        .append("VALUES (?, ?) ON CONFLICT DO UPDATE ")
-//        .append("SET data = tweets.")
-//        .toString();
 
     @Autowired
     private TweetRepository tweetRepository;
@@ -42,25 +37,6 @@ public class BufferedTweetWriter {
 
             tweetRepository.save(copied);
             buffer.clear();
-//            jdbcTemplate.batchUpdate(INSERT_STATEMENT, new BatchPreparedStatementSetter() {
-//                @Override
-//                public void setValues(PreparedStatement ps, int i) throws SQLException {
-//                    TweetEntity tweet = copied.get(i);
-//                    ps.setLong(1, tweet.getId());
-//                    try {
-//                        ps.setString(2,
-//                            new ObjectMapper().writeValueAsString(tweet)
-//                        );
-//                    } catch (IOException e) {
-//                        log.error("Unable to write Tweet as JSON", e);
-//                    }
-//                }
-//
-//                @Override
-//                public int getBatchSize() {
-//                    return copied.size();
-//                }
-//            });
         }
     }
 
