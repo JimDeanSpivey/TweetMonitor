@@ -13,13 +13,13 @@ CREATE TABLE tweet (
 );
 
 CREATE RULE "tweet_on_duplicate_ignore" AS ON INSERT TO "tweet"
-  WHERE EXISTS(SELECT 1 FROM tweet 
+  WHERE EXISTS(SELECT 1 FROM tweet
               WHERE id=NEW.id)
   DO INSTEAD NOTHING;
 
 CREATE TABLE city (
   id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
   latitude DECIMAL(10,6) NOT NULL,
   longitude DECIMAL(10,6) NOT NULL,
   country_code TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TRIGGER trigger_twitter_api_node_updated BEFORE UPDATE ON twitter_api_nod
 
 -- VIEWS
 CREATE VIEW keywords_cities_us_large
-AS SELECT c.search_name keyword, a.alias alias
+AS SELECT c.name keyword, a.alias alias
 FROM city c join city_alias a on c.id = a.city_id
 where c.country_code = 'US' and population >= 200000;
 
