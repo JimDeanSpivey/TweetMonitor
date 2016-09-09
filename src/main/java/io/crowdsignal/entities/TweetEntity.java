@@ -20,7 +20,7 @@ public class TweetEntity {
     private Date tweeted;
     private Double latitude;
     private Double longitude;
-    @Column(insertable = false)
+    @Column(insertable = false, updatable = false)
     private Date created;
 
     public Date getCreated() {
