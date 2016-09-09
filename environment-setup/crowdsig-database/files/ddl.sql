@@ -20,6 +20,7 @@ CREATE RULE "tweet_on_duplicate_ignore" AS ON INSERT TO "tweet"
 CREATE TABLE city (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
+  name_special_chars TEXT NOT NULL,
   latitude DECIMAL(10,6) NOT NULL,
   longitude DECIMAL(10,6) NOT NULL,
   country_code TEXT NOT NULL,
