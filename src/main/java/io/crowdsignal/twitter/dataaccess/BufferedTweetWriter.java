@@ -18,7 +18,7 @@ public class BufferedTweetWriter {
     private static final Logger log = LoggerFactory.getLogger(BufferedTweetWriter.class);
 
     @Autowired
-    private TweetRepository tweetRepository;
+    private TweetRepo tweetRepo;
     @Value("${io.crowdsignal.twitter.streaming.writebuffer}")
     private Integer limit;
 
@@ -35,7 +35,7 @@ public class BufferedTweetWriter {
             // --Because the buffer may accept new entries in another thread?
             List<TweetEntity> copied = new ArrayList<>(buffer);
 
-            tweetRepository.save(copied);
+            tweetRepo.save(copied);
             buffer.clear();
         }
     }

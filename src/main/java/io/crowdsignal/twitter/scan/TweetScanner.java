@@ -29,9 +29,7 @@ public class TweetScanner {
     public void run() {
         log.debug("Running TweetScanner");
         Collection<String> keywords = searchContextProvider.allKeywords();
-        StringBuilder formatted = new StringBuilder();
-        keywords.stream().forEach(formatted::append);
-        log.info("Tracking words: {}", formatted);
+        log.info("Tracking words: {}", String.join(",", keywords));
         FilterQuery filterQuery = new FilterQuery();
         filterQuery.language("en");
         filterQuery.track(keywords.toArray(new String[keywords.size()]));
@@ -39,7 +37,7 @@ public class TweetScanner {
         log.debug("Stream invoked");
 
 
-        // examine redis here for absense of any new keys, and call twitterStream.filter again if it went silent (no rows)
+        // examine redis here for absence of any new keys, and call twitterStream.filter again if it went silent (no rows)
         // TODO: should this be done in a new class. Thread chaperoning is a separate concern.
     }
 }

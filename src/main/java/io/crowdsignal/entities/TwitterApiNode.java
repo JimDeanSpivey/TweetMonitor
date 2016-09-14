@@ -6,17 +6,20 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 
 /**
  * @author Jimmy Spivey
  */
 @Entity
-//@Table(name="twitter_api_node")
 public class TwitterApiNode extends AuditColumnEntity {
 
     @Id
     private Integer id;
     private String name;
+    @OneToOne
+    @JoinColumn(name = "oath_tokens_id")
+    private TwitterApiToken token;
     @ManyToMany
     @JoinTable(
         name="keyword_twitter_api_node",
@@ -42,5 +45,11 @@ public class TwitterApiNode extends AuditColumnEntity {
     }
     public void setKeywords(Set<Keyword> keywords) {
         this.keywords = keywords;
+    }
+    public TwitterApiToken getToken() {
+        return this.token;
+    }
+    public void setToken(TwitterApiToken token) {
+        this.token = token;
     }
 }

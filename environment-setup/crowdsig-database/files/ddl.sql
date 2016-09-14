@@ -58,16 +58,23 @@ CREATE TABLE keyword_alias (
   alias TEXT NOT NULL
 );
 
+CREATE TABLE twitter_api_token (
+  id SERIAL PRIMARY KEY,
+  app_id TEXT NOT NULL,
+  app_secret TEXT NOT NULL,
+  access_token TEXT NOT NULL,
+  access_token_secret TEXT NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
 CREATE TABLE twitter_api_node (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
-  app_id TEXT,
-  app_secret TEXT,
-  access_token TEXT,
-  access_token_secret TEXT,
+  oath_tokens_id INTEGER REFERENCES twitter_api_token(id),
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
+
 
 CREATE TABLE keyword_twitter_api_node (
   api_node_id INTEGER NOT NULL REFERENCES twitter_api_node(id),

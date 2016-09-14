@@ -1,6 +1,9 @@
 package io.crowdsignal.config;
 
+import io.crowdsignal.config.dataaccess.TwitterApiNodeRepo;
+import io.crowdsignal.entities.TwitterApiToken;
 import io.crowdsignal.twitter.scan.TweetStreamListener;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,20 +45,20 @@ public class Beans {
     }
 
     @Bean
-    //TODO: Manage these in twitter_api_node table
+    @Transactional
     public TwitterStream twitterStream(
-            @Value("${io.crowdsignal.twitter.oath.appId}") String appId,
-            @Value("${io.crowdsignal.twitter.oath.appSecret}") String appSecret,
-            @Value("${io.crowdsignal.twitter.oath.accessToken}") String accessToken,
-            @Value("${io.crowdsignal.twitter.oath.accessTokenSecret}") String accessTokenSecret,
-            TweetStreamListener streamListener
+        @Value("${io.crowdsignal.node.name}") String node,
+        TwitterApiNodeRepo twitterApiNodeRepo,
+        TweetStreamListener streamListener
     ) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setJSONStoreEnabled(true);
         TwitterStream stream = new TwitterStreamFactory(cb.build()).getInstance();
-        stream.setOAuthConsumer(appId, appSecret);
+        TwitterApiToken token = twitterApiNodeRepo.findByName(node).getToken();
+
+        stream.setOAuthConsumer(token.getAppId(), token.getAppSecret());
         stream.setOAuthAccessToken(
-            new AccessToken(accessToken, accessTokenSecret)
+            new AccessToken(token.getAccessToken(), token.getAccessTokenSecret())
         );
         stream.addListener(streamListener);
         return stream;

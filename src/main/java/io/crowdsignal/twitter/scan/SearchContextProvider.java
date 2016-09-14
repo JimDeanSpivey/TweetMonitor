@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import io.crowdsignal.entities.Keyword;
 import io.crowdsignal.entities.KeywordAlias;
-import io.crowdsignal.twitter.dataaccess.KeywordRepository;
+import io.crowdsignal.twitter.dataaccess.KeywordRepo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class SearchContextProvider {
     private Logger log = LoggerFactory.getLogger(SearchContextProvider.class);
 
     @Autowired
-    private KeywordRepository keywordRepo;
+    private KeywordRepo keywordRepo;
 
     @Value("${io.crowdsignal.node.name}")
     private String nodeName;
