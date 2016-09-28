@@ -1,6 +1,0 @@
-- name: Install TweetScanner Environment
-  hosts: all
-  roles:
-    - redis
-    - postgresql
-    - crowdsig-database
