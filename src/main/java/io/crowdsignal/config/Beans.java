@@ -2,7 +2,7 @@ package io.crowdsignal.config;
 
 import io.crowdsignal.config.dataaccess.TwitterApiNodeRepo;
 import io.crowdsignal.entities.TwitterApiToken;
-import io.crowdsignal.twitter.scan.TweetStreamListener;
+import io.crowdsignal.twitter.ingest.TweetStreamListener;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

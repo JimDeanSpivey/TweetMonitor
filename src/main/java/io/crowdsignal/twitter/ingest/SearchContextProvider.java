@@ -1,4 +1,4 @@
-package io.crowdsignal.twitter.scan;
+package io.crowdsignal.twitter.ingest;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;

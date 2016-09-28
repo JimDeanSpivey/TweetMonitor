@@ -29,11 +29,9 @@ public class TweetCountRepo {
         .withLocale(Locale.US)
         .withZone(DateTimeZone.UTC);
 
-    public void incrementWordCount(String context, Status tweet, String word, Integer count) {
-
+    public void incrementWordCount(String context, Status tweet, String word) {
         String key = getKey(context, tweet);
-        log.trace("Persisting key:{}, word:{}, count:{}", key, word, count);
-        stringRedisTemplate.opsForZSet().incrementScore(key, word, count);
+        stringRedisTemplate.opsForZSet().incrementScore(key, word, 1);
     }
 
     private String getKey(String context, Status tweet) {

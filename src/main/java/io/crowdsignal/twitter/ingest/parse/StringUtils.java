@@ -1,4 +1,4 @@
-package io.crowdsignal.twitter.scan.parse;
+package io.crowdsignal.twitter.ingest.parse;
 
 import org.springframework.stereotype.Component;
 

@@ -1,10 +1,10 @@
-package io.crowdsignal.twitter.scan;
+package io.crowdsignal.twitter.ingest;
 
 import gnu.trove.map.TObjectShortMap;
 import io.crowdsignal.entities.TweetEntity;
 import io.crowdsignal.twitter.dataaccess.BufferedTweetWriter;
 import io.crowdsignal.twitter.dataaccess.redis.TweetCountRepo;
-import io.crowdsignal.twitter.scan.parse.WordParser;
+import io.crowdsignal.twitter.ingest.parse.WordParser;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class TweetStreamListener implements StatusListener {
     private TweetCountRepo countRepo;
 
     @Autowired
-    private BufferedTweetWriter bufferedTweetWriter;
+    private BufferedTweetWriter tweetWriter;
 
     private boolean skipTweet(Status tweet) {
 
@@ -68,7 +68,7 @@ public class TweetStreamListener implements StatusListener {
 
     @Override
     public void onStatus(Status tweet) {
-        log.debug(tweet.getText());
+        log.trace(tweet.getText());
         if (skipTweet(tweet))
             return;
 
@@ -81,44 +81,41 @@ public class TweetStreamListener implements StatusListener {
                 .collect(Collectors.toSet());
         citiesFound.forEach(c -> persistWordCounts(tokens, c, tweet));
 
-        bufferedTweetWriter.saveTweet(
+        tweetWriter.saveTweet(
             toTweetEntity(tweet)
         );
     }
 
     private void persistWordCounts(List<String> tokens, String city, Status tweet) {
-        // Persist word counts to redis
         TObjectShortMap wordsWithCounts = wordParser.getWordsWithCounts(tokens);
-
         wordsWithCounts.forEachEntry((k, v) -> {
-                    countRepo.incrementWordCount(
-                            city,
-                            tweet,
-                            (String) k,
-                            (int) wordsWithCounts.get(k)
-                    );
-                    return true;
-                }
+                countRepo.incrementWordCount(
+                        city,
+                        tweet,
+                        (String) k
+                );
+                return true;
+            }
         );
     }
 
     @Override
     public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
         log.info("onDeletionNotice");
-        //TODO
     }
 
     @Override
     public void onTrackLimitationNotice(int numberOfLimitedTweets) {
         // https://dev.twitter.com/streaming/overview/messages-types#limit_notices
         //TODO: definitely want to track this somewhere
+        //      --Would be a good metric to see over-used and under-used words
+        //      --so that they can be better reconfigured.
         log.warn("Stream Limit notice: {}", numberOfLimitedTweets);
     }
 
     @Override
     public void onScrubGeo(long userId, long upToStatusId) {
         log.info("onScrubGeo");
-        //TODO
     }
 
     @Override

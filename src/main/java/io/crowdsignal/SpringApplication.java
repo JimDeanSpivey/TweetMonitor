@@ -1,7 +1,7 @@
 package io.crowdsignal;
 
-import io.crowdsignal.twitter.scan.SearchContextProvider;
-import io.crowdsignal.twitter.scan.TweetScanner;
+import io.crowdsignal.twitter.ingest.SearchContextProvider;
+import io.crowdsignal.twitter.ingest.TweetIngestor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +19,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 public class SpringApplication implements CommandLineRunner {
 
-    private Logger log = LoggerFactory.getLogger(TweetScanner.class);
+    private Logger log = LoggerFactory.getLogger(TweetIngestor.class);
 
     @Autowired
     private SearchContextProvider searchContextProvider;
 
     @Autowired
-    private TweetScanner tweetScanner;
+    private TweetIngestor tweetIngestor;
 
     public static void main(String[] args) {
         org.springframework.boot.SpringApplication.run(SpringApplication.class, args);
@@ -35,6 +35,6 @@ public class SpringApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.trace("SpringApplication.run");
         searchContextProvider.init();
-        tweetScanner.run();
+        tweetIngestor.run();
     }
 }

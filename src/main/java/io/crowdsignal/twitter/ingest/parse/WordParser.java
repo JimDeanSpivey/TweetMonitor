@@ -1,4 +1,4 @@
-package io.crowdsignal.twitter.scan.parse;
+package io.crowdsignal.twitter.ingest.parse;
 
 import gnu.trove.map.TObjectShortMap;
 import gnu.trove.map.hash.TObjectShortHashMap;
@@ -39,15 +39,10 @@ public class WordParser {
 
     public TObjectShortMap getWordsWithCounts(List<String> tokens) {
         TObjectShortMap wordCounts = new TObjectShortHashMap<String>(50);
-
-        //Get all words separated by spaces
         Set<String> sanitizedWords = sanitizeTokens(tokens);
-
         sanitizedWords.forEach(t -> {
-
             if (blacklist.contains(t))
                 return;
-
             wordCounts.adjustOrPutValue(t, (short)1, (short)1);
         });
 
@@ -69,7 +64,6 @@ public class WordParser {
     }
 
     Set<String> sanitizeTokens(List<String> tokens) {
-
         Set<String> acceptable = tokens.stream()
                 .filter(this::isWordAcceptable)
                 .map(String::toLowerCase)

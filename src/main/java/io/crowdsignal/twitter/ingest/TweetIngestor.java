@@ -1,4 +1,4 @@
-package io.crowdsignal.twitter.scan;
+package io.crowdsignal.twitter.ingest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,9 @@ import java.util.Collection;
  * Created by jspivey on 7/22/15.
  */
 @Component
-public class TweetScanner {
+public class TweetIngestor {
 
-    private static final Logger log = LoggerFactory.getLogger(TweetScanner.class);
+    private static final Logger log = LoggerFactory.getLogger(TweetIngestor.class);
 
     @Autowired
     private TweetStreamListener tweetStreamListener;
