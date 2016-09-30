@@ -1,5 +1,9 @@
 package io.crowdsignal.config;
 
+import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.api.StatefulConnection;
+import com.lambdaworks.redis.api.StatefulRedisConnection;
+import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import io.crowdsignal.config.dataaccess.TwitterApiNodeRepo;
 import io.crowdsignal.entities.TwitterApiToken;
 import io.crowdsignal.twitter.ingest.TweetStreamListener;
@@ -7,8 +11,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.auth.AccessToken;
@@ -22,26 +24,28 @@ public class Beans {
 
     // redis
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory(
+    public RedisClient redisClient(
         @Value("${redis.hostname}") String hostname,
         @Value("${redis.port}") String port,
         @Value("${redis.password}") String password
     ) {
-        JedisConnectionFactory factory = new JedisConnectionFactory();
-        factory.setUsePool(true);
-        factory.setHostName(hostname);
-        factory.setPort(Integer.valueOf(port));
-        factory.setPassword(password);
-        return factory;
+        RedisClient client = RedisClient.create(
+            String.format("redis://%s@%s:%s", password, hostname, port)
+        );
+        return client;
     }
 
     @Bean
-    public StringRedisTemplate stringRedisTemplate(
-        JedisConnectionFactory jedisConnectionFactory
-    ) {
-        StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(jedisConnectionFactory);
-        return template;
+    public RedisAsyncCommands<String, String> redisAsyncCommands(RedisClient client) {
+        RedisAsyncCommands<String, String> async = client.connect().async();
+        return async;
+    }
+
+    @Bean
+    public StatefulConnection<String, String> redisConnection(RedisClient client) {
+        StatefulRedisConnection<String, String> connection = client.connect();
+        connection.setAutoFlushCommands(false);
+        return connection;
     }
 
     @Bean

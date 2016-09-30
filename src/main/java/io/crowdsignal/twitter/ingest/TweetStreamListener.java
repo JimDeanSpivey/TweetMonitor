@@ -3,7 +3,7 @@ package io.crowdsignal.twitter.ingest;
 import gnu.trove.map.TObjectShortMap;
 import io.crowdsignal.entities.TweetEntity;
 import io.crowdsignal.twitter.dataaccess.BufferedTweetWriter;
-import io.crowdsignal.twitter.dataaccess.redis.TweetCountRepo;
+import io.crowdsignal.twitter.dataaccess.redis.WordCountIncrementer;
 import io.crowdsignal.twitter.ingest.parse.WordParser;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +33,7 @@ public class TweetStreamListener implements StatusListener {
     private WordParser wordParser;
 
     @Autowired
-    private TweetCountRepo countRepo;
+    private WordCountIncrementer countRepo;
 
     @Autowired
     private BufferedTweetWriter tweetWriter;

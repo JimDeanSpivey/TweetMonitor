@@ -28,11 +28,11 @@
         </encoder>
     </appender>
 
-    <appender name="springData" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>springData.log</file>
+    <appender name="spring" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>spring.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>rollover_springData_%i.log</fileNamePattern>
+            <fileNamePattern>rollover_spring_%i.log</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>200</maxIndex>
         </rollingPolicy>
@@ -47,33 +47,7 @@
         </encoder>
     </appender>
 
-    <appender name="everything" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>everything.log</file>
-
-        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
-            <!--<level>TRACE</level>-->
-            <!--<onMatch>ACCEPT</onMatch>-->
-            <!--<onMismatch>DENY</onMismatch>-->
-        <!--</filter>-->
-
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>rollover_everything_%i.log</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>5</maxIndex>
-        </rollingPolicy>
-
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>5MB</maxFileSize>
-        </triggeringPolicy>
-
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-5level %logger{5} # %msg %n</pattern>
-        </encoder>
-    </appender>
-
-
-    <!-- Need to track INFO and above in a separate file so that it doesn't rollover when doing debug/trace level logging -->
+    <!-- Need to track INFO and above in a separate file so that it doesn't rollover when doing debug/trace level logging? -->
     <appender name="application" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>application.log</file>
 
@@ -97,23 +71,22 @@
         </encoder>
     </appender>
 
-
-    <logger name="io.crowdsignal" level="trace">
-        <appender-ref ref="everything"/>
+    <root level="info">
         <appender-ref ref="application"/>
-    </logger>
-    <logger name="org.springframework" level="info"/>
-    <logger name="org.springframework.web" level="debug"/>
-    <logger name="redis" level="trace"/>
+    </root>
 
+    <!--<logger name="io.crowdsignal" level="info">-->
+        <!--<appender-ref ref="everything"/>-->
+    <!--</logger>-->
+    <!--<logger name="org.springframework" level="info"/>-->
+    <!--<logger name="redis" level="info"/>-->
 
-
-    <logger name="org.springframework.social.twitter" level="debug" additivity="false">
+    <logger name="twitter4j" level="info" additivity="false">
         <appender-ref ref="twitterApi" />
     </logger>
 
-    <logger name="org.springframework.data" level="trace" additivity="false">
-        <appender-ref ref="springData" />
+    <logger name="org.springframework" level="info" additivity="false">
+        <appender-ref ref="spring" />
     </logger>
 
 </configuration>

@@ -41,8 +41,10 @@ dependencies {
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 
     // Redis
-    compile 'redis.clients:jedis:2.9.0'
-    compile 'org.springframework.data:spring-data-redis:1.7.2.RELEASE'
+    // compile 'redis.clients:jedis:2.9.0'
+//    compile 'org.springframework.data:spring-data-redis:1.7.2.RELEASE'
+    compile 'biz.paluch.redis:lettuce:4.2.2.Final'
+
 
     // Relational Persistence
     compile group: 'org.springframework.boot',
