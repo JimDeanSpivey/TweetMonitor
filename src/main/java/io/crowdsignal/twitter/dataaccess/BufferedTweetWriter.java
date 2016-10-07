@@ -19,7 +19,7 @@ public class BufferedTweetWriter {
 
     @Autowired
     private TweetRepo tweetRepo;
-    @Value("${io.crowdsignal.twitter.streaming.writebuffer}")
+    @Value("${io.crowdsignal.twitter.persitence.postgresql.writebuffer}")
     private Integer limit;
 
     private List<TweetEntity> buffer = new ArrayList<>();
@@ -30,7 +30,7 @@ public class BufferedTweetWriter {
         buffer.add(tweet);
 
         if (buffer.size() >= limit) {
-            log.debug("Saving {} tweets", buffer.size());
+            log.info("Saving {} tweets", buffer.size());
             // Shallow copy to prevent concurrent modification
             // --Because the buffer may accept new entries in another thread?
             List<TweetEntity> copied = new ArrayList<>(buffer);

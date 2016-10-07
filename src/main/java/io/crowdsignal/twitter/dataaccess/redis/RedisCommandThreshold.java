@@ -4,27 +4,31 @@ import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Jimmy Spivey
+ *
+ * Flushes the Lettuce driver's command queue after a threshold has been met.
  */
 @Component
-public class ZincrbyBatchedDao {
+public class RedisCommandThreshold {
 
-    private static final Logger log = LoggerFactory.getLogger(ZincrbyBatchedDao.class);
+    private static final Logger log = LoggerFactory.getLogger(RedisCommandThreshold.class);
 
-    private int batchSize = 100; //TODO: configure from properties
+    @Value("${io.crowdsignal.twitter.persistence.redis.writebuffer")
+    private int batchSize;
     private int count;
 
     @Autowired
     private RedisAsyncCommands<String, String> redisAsyncCommands;
 
-    public void increment(String key, String word) {
-        redisAsyncCommands.zincrby(key, 1, word);
+    public void increment() {
+//        redisAsyncCommands.zincrby(key, 1, word);
         if (++count >= batchSize) {
             count = 0;
-            log.info("Increment batch threshold met, flushing redis commands.");
+            log.info("Increment batch threshold {} met, flushing redis commands.", batchSize);
             redisAsyncCommands.flushCommands();
         }
     }

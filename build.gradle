@@ -44,7 +44,9 @@ dependencies {
     // compile 'redis.clients:jedis:2.9.0'
 //    compile 'org.springframework.data:spring-data-redis:1.7.2.RELEASE'
     compile 'biz.paluch.redis:lettuce:4.2.2.Final'
+    compile 'org.redisson:redisson:2.4.0'
 
+    compile 'io.reactivex:rxjava:1.2.1'
 
     // Relational Persistence
     compile group: 'org.springframework.boot',
