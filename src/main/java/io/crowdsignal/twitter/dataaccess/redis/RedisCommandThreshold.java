@@ -17,7 +17,7 @@ public class RedisCommandThreshold {
 
     private static final Logger log = LoggerFactory.getLogger(RedisCommandThreshold.class);
 
-    @Value("${io.crowdsignal.twitter.persistence.redis.writebuffer")
+    @Value("${io.crowdsignal.twitter.persistence.redis.writebuffer}")
     private int batchSize;
     private int count;
 

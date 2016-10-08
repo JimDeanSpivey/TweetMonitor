@@ -1,43 +1,83 @@
 package io.crowdsignal.twitter.ingest;
 
+import io.crowdsignal.twitter.SkipTweetPredicate;
+import io.crowdsignal.twitter.SpamFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import twitter4j.FilterQuery;
+import reactor.core.publisher.ConnectableFlux;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
+import twitter4j.Status;
+import twitter4j.StatusListener;
 import twitter4j.TwitterStream;
 
-import java.util.Collection;
-
 /**
- * Created by jspivey on 7/22/15.
+ * @author Jimmy Spivey
  */
 @Component
 public class TweetIngestor {
 
     private static final Logger log = LoggerFactory.getLogger(TweetIngestor.class);
 
-    @Autowired
-    private TweetStreamListener tweetStreamListener;
-
-    @Autowired
-    private SearchContextProvider searchContextProvider;
-
-    @Autowired
+    private StreamInvoker streamInvoker;
+    private SkipTweetPredicate skipTweetPredicate;
+    private SpamFilter spamFilter;
     private TwitterStream twitterStream;
 
-    public void run() {
-        log.debug("Running TweetScanner");
-        Collection<String> keywords = searchContextProvider.allKeywords();
-        log.info("Tracking words: {}", String.join(",", keywords));
-        FilterQuery filterQuery = new FilterQuery();
-        filterQuery.language("en");
-        filterQuery.track(keywords.toArray(new String[keywords.size()]));
-        twitterStream.filter(filterQuery);
-        log.debug("Stream invoked");
-
-
-        // examine redis here for absence of any new keys, and call twitterStream.filter again if it went silent (no rows)
-        // TODO: should this be done in a new class. Thread chaperoning is a separate concern.
+    public TweetIngestor(StreamInvoker streamInvoker, SkipTweetPredicate skipTweetPredicate, SpamFilter spamFilter, TwitterStream twitterStream) {
+        this.streamInvoker = streamInvoker;
+        this.skipTweetPredicate = skipTweetPredicate;
+        this.spamFilter = spamFilter;
+        this.twitterStream = twitterStream;
     }
+
+    public void run() {
+        log.trace("run()");
+        ConnectableFlux<Status> tweets = Flux.<Status>create(emitter -> {
+            log.trace("create()");
+            final StatusListener listener = new TweetListener() {
+                @Override
+                public void onStatus(Status status) {
+                    log.trace("next()");
+                    emitter.next(status);
+                }
+
+                @Override
+                public void onException(Exception ex) {
+                    log.trace("error()");
+                    emitter.error(ex);
+                }
+            };
+            log.trace("streamInvoker.run()");
+            twitterStream.addListener(listener);
+            streamInvoker.run();
+        }).publish();
+
+        tweets
+                .filter(Status::isRetweet)
+                .subscribe(status -> log.info("Retweet: {}", status.getText()));
+        tweets
+                .filter(skipTweetPredicate)
+                .publishOn(Schedulers.elastic())
+                .filter(spamFilter)
+                .publishOn(Schedulers.parallel())
+//                .buffer(100)
+                .subscribe(status -> log.info(status.getText()));
+
+        tweets.connect();
+
+
+
+                //.publishOn(Schedulers.elastic())
+                //TODO: Save to postgresql
+
+
+                //.buffer(100) TODO: see if this is useful for batching persistence of tweets
+                //.doOnSubscribe(s -> streamInvoker.run())
+                //.subscribeOn(Schedulers.immediate())
+                //.subscribe(status -> log.info(status.getText()));
+//                .subscribe();
+    }
+
 }

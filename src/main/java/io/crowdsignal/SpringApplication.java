@@ -19,7 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 public class SpringApplication implements CommandLineRunner {
 
-    private Logger log = LoggerFactory.getLogger(TweetIngestor.class);
+    private Logger log = LoggerFactory.getLogger(SpringApplication.class);
 
     @Autowired
     private SearchContextProvider searchContextProvider;
@@ -33,8 +33,10 @@ public class SpringApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.trace("SpringApplication.run");
-        searchContextProvider.init();
+        log.info("SpringApplication.run");
+        System.out.println("teeest");
+        searchContextProvider.init(); //TODO: move this initilization to spring?
+        //tweetPublisher.fl
         tweetIngestor.run();
     }
 }
