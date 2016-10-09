@@ -5,7 +5,6 @@ import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import io.crowdsignal.config.dataaccess.TwitterApiNodeRepo;
 import io.crowdsignal.entities.TwitterApiToken;
-import io.crowdsignal.twitter.ingest.TweetStreamListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,8 +53,7 @@ public class Beans {
     @Transactional
     public TwitterStream twitterStream(
         @Value("${io.crowdsignal.node.name}") String node,
-        TwitterApiNodeRepo twitterApiNodeRepo,
-        TweetStreamListener streamListener
+        TwitterApiNodeRepo twitterApiNodeRepo
     ) {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setJSONStoreEnabled(true);

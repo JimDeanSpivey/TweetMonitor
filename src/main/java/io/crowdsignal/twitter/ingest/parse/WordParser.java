@@ -27,7 +27,7 @@ public class WordParser {
 
     private Logger log = LoggerFactory.getLogger(WordParser.class);
 
-    @Value("#{'${io.crowdsignal.words.mostcommon}'.split(',')}")
+    @Value("#{'${io.cs.words.mostcommon}'.split(',')}")
     private Set<String> blacklist;
 
     @Autowired
@@ -35,7 +35,6 @@ public class WordParser {
 
 //    private static final Pattern wordPattern = Pattern.compile("[\\w/&/-_]+");
     private static final Pattern urlPattern = Pattern.compile("(https?)://[^\\s/$.?#].[^\\s]*");
-
 
     public TObjectShortMap getWordsWithCounts(List<String> tokens) {
         TObjectShortMap wordCounts = new TObjectShortHashMap<String>(50);

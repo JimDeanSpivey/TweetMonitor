@@ -6,18 +6,15 @@ import com.google.common.collect.Multimap;
 import io.crowdsignal.entities.Keyword;
 import io.crowdsignal.entities.KeywordAlias;
 import io.crowdsignal.twitter.dataaccess.KeywordRepo;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.transaction.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by jspivey on 9/10/15.
@@ -46,7 +43,7 @@ public class SearchContextProvider {
     }
 
     @Transactional
-    public void init() {
+    public void init() {//TODO: should be able to use lazy loading, this isn't couchdb anymore
         lookupSearchTerms();
         flattenAndIndexTerms();
     }

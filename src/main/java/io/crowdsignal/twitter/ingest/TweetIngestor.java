@@ -1,7 +1,8 @@
 package io.crowdsignal.twitter.ingest;
 
-import io.crowdsignal.twitter.SkipTweetPredicate;
 import io.crowdsignal.twitter.SpamFilter;
+import io.crowdsignal.twitter.WordCounter;
+import io.crowdsignal.twitter.dataaccess.TweetWritingSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,15 +22,17 @@ public class TweetIngestor {
     private static final Logger log = LoggerFactory.getLogger(TweetIngestor.class);
 
     private StreamInvoker streamInvoker;
-    private SkipTweetPredicate skipTweetPredicate;
     private SpamFilter spamFilter;
     private TwitterStream twitterStream;
+    private WordCounter wordCounter;
+    private TweetWritingSubscriber tweetWritingSubscriber;
 
-    public TweetIngestor(StreamInvoker streamInvoker, SkipTweetPredicate skipTweetPredicate, SpamFilter spamFilter, TwitterStream twitterStream) {
+    public TweetIngestor(StreamInvoker streamInvoker, SpamFilter spamFilter, TwitterStream twitterStream, WordCounter wordCounter, TweetWritingSubscriber tweetWritingSubscriber) {
         this.streamInvoker = streamInvoker;
-        this.skipTweetPredicate = skipTweetPredicate;
         this.spamFilter = spamFilter;
         this.twitterStream = twitterStream;
+        this.wordCounter = wordCounter;
+        this.tweetWritingSubscriber = tweetWritingSubscriber;
     }
 
     public void run() {
@@ -54,18 +57,37 @@ public class TweetIngestor {
             streamInvoker.run();
         }).publish();
 
-        tweets
-                .filter(Status::isRetweet)
-                .subscribe(status -> log.info("Retweet: {}", status.getText()));
-        tweets
-                .filter(skipTweetPredicate)
+//        tweets
+//                .filter(Status::isRetweet)
+//                .subscribe(status -> log.info("Retweet: {}", status.getText().hashCode()));
+
+        ConnectableFlux<Status> spamFiltered = tweets
+//                .filter(skipTweetPredicate) //I think user mentions might be okay.
+                .filter(status -> !status.isRetweet())
+                .buffer(3) // One problem with larger values is that more spam could get through on different nodes.
                 .publishOn(Schedulers.elastic())
-                .filter(spamFilter)
+                .flatMap(spamFilter)
+                //.doOnNext(new SpamFilter())
+//                .flatMap(Flux::fromIterable)
+                //.filter(spamFilter)
                 .publishOn(Schedulers.parallel())
 //                .buffer(100)
-                .subscribe(status -> log.info(status.getText()));
+                //TODO: wordcounts and postgresql
+//                .subscribe(status -> log.info(status.getText().hashCode()+""));
+                .publish();
+
+        // Word counts
+        spamFiltered
+                .subscribeOn(Schedulers.parallel())
+                .subscribe(wordCounter);
+
+        spamFiltered
+                .buffer(5) //change to 100
+                .subscribeOn(Schedulers.elastic())
+                .subscribe(tweetWritingSubscriber);
 
         tweets.connect();
+        spamFiltered.connect();
 
 
 
