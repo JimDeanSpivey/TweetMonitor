@@ -26,7 +26,7 @@ public class TweetWritingSubscriber implements Consumer<List<Status>> {
 
     @Override
     public void accept(List<Status> statuses) {
-        log.trace("Saving {} tweets", statuses.size());
+        log.debug("Saving {} tweets", statuses.size());
         tweetRepo.save(
                 statuses.stream().map(this::toTweetEntity).collect(Collectors.toList())
         );

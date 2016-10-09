@@ -46,6 +46,7 @@ public class WordCounter implements Consumer<Status> {
     }
 
     private void persistWordCounts(List<String> tokens, String city, Status tweet) {
+        log.trace("Persisting word counts");
         TObjectShortMap wordsWithCounts = wordParser.getWordsWithCounts(tokens);
         wordsWithCounts.forEachEntry((k, v) -> {
                     countRepo.incrementWordCount(
