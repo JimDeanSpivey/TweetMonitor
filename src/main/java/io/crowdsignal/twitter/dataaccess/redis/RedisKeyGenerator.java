@@ -28,9 +28,24 @@ public class RedisKeyGenerator {
      * @return
      */
     public String getTimeBucketKey(String namespace, Date time, long bucketsize) {
+        return String.format("%s:%s", namespace, getTimeBucketKey(time, bucketsize));
+    }
+
+    public String getTimeBucketKey(Date time, long bucketsize) {
         long millis = time.getTime();
         millis -= millis % bucketsize;
-        return String.format("%s:%s", namespace, dateAsKeyDtf.print(millis));
+        return dateAsKeyDtf.print(millis);
     }
+
+//    public String getTimeBucketKey(Date time, long bucketsize) {
+//        return String.format("%s:%s", namespace, getPrint(millis));
+//    }
+//
+    public Date parseDateFromKey(String key) {
+        return dateAsKeyDtf.parseDateTime(key).toDate();
+    }
+
+
+
 
 }

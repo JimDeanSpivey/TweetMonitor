@@ -33,7 +33,7 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
     private RedisAsyncCommands<String, String> redis;
     private RedisKeyGenerator redisKeyGenerator;
 
-    @Value("${io.cs.redis.spamfilter.bucketsize.minutes}")
+    @Value("${io.cs.redis.spamfilter.bucket.size.minutes}")
     private int minutes;
     @Value("${io.cs.redis.expected.tweets.persecond}")
     private int tweetsPerSecond;
@@ -70,10 +70,10 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                 Boolean newTweet = tweetLookups.get(tweet.getId()).get();
                 Boolean newUser = userLookups.get(tweet.getUser().getId()).get();
                 if (!newTweet) {
-                    log.debug("Spam Tweet: {}", tweet.getId());
+                    log.trace("Spam Tweet: {}", tweet.getId());
                 }
                 if (!newUser) {
-                    log.debug("Spam User: {}", tweet.getUser().getName());
+                    log.trace("Spam User: {}", tweet.getUser().getName());
                 }
                 return newTweet && newUser;
             } catch (InterruptedException e) {
@@ -82,7 +82,7 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                 throw new IllegalStateException(e);
             }
         }).collect(Collectors.toList());
-        log.debug("{} tweets out of {} were not spam", notSpam.size(), tweets.size());
+        log.trace("{} tweets out of {} were not spam", notSpam.size(), tweets.size());
         return Flux.fromIterable(notSpam);
     }
 
