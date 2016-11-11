@@ -19,7 +19,7 @@ public abstract class TweetListener implements StatusListener {
         //TODO: definitely want to track this somewhere
         //      --Would be a good metric to see over-used and under-used words
         //      --so that they can be better reconfigured.
-        log.warn("Stream Limit notice: {}", numberOfLimitedTweets);
+        log.warn("Stream Track Limit notice: {}", numberOfLimitedTweets);
     }
 
     @Override

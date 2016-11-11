@@ -5,6 +5,8 @@ import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import io.crowdsignal.config.dataaccess.TwitterApiNodeRepo;
 import io.crowdsignal.entities.TwitterApiToken;
+import io.crowdsignal.twitter.dataaccess.KeywordRepo;
+import io.crowdsignal.twitter.ingest.SearchContextProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +19,11 @@ import javax.transaction.Transactional;
 
 /**
  * Created by jspivey on 7/22/15.
+ *
+ * Beans that connect (require) a persistence server.
  */
 @Configuration
 public class ResourceBeans {
-
-    // TODO: put these attached resource type beans in their own file to make stubbing easier
 
     // redis
     @Bean
@@ -59,13 +61,18 @@ public class ResourceBeans {
         cb.setJSONStoreEnabled(true);
         TwitterStream stream = new TwitterStreamFactory(cb.build()).getInstance();
         TwitterApiToken token = twitterApiNodeRepo.findByName(node).getToken();
-
         stream.setOAuthConsumer(token.getAppId(), token.getAppSecret());
         stream.setOAuthAccessToken(
             new AccessToken(token.getAccessToken(), token.getAccessTokenSecret())
         );
-        //stream.addListener(streamListener);
         return stream;
+    }
+
+    @Bean
+    public SearchContextProvider searchContextProvider(KeywordRepo keywordRepo) {
+        SearchContextProvider scp = new SearchContextProvider(keywordRepo);
+        scp.init();
+        return scp;
     }
 
 }
