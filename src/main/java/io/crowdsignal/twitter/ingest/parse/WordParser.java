@@ -4,13 +4,11 @@ import gnu.trove.map.TObjectShortMap;
 import gnu.trove.map.hash.TObjectShortHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -27,18 +25,16 @@ import java.util.stream.Collectors;
 @Component
 public class WordParser {
 
-    private static final Logger log = LoggerFactory.getLogger(WordParser.class);
-    private static final Pattern urlPattern = Pattern.compile("(https?)://[^\\s/$.?#].[^\\s]*");
-    private static final Pattern adjacentsPattern = Pattern.compile("([^\\s]+[ ][^\\s]+)");
+    private Logger log = LoggerFactory.getLogger(WordParser.class);
 
     @Value("#{'${io.cs.words.mostcommon}'.split(',')}")
     private Set<String> blacklist;
 
+    @Autowired
     private StringUtils stringUtils;
 
-    public WordParser(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
-    }
+//    private static final Pattern wordPattern = Pattern.compile("[\\w/&/-_]+");
+    private static final Pattern urlPattern = Pattern.compile("(https?)://[^\\s/$.?#].[^\\s]*");
 
     public TObjectShortMap getWordsWithCounts(List<String> tokens) {
         TObjectShortMap wordCounts = new TObjectShortHashMap<String>(50);
@@ -87,6 +83,8 @@ public class WordParser {
 //                wordPattern.matcher(word).find()
     }
 
+    Pattern adjacentsPattern = Pattern.compile("([^\\s]+[ ][^\\s]+)");
+
     List<String> getAdjacents(String text) {
         List<String> results = new ArrayList<>();
 
@@ -105,6 +103,8 @@ public class WordParser {
 
         return results;
     }
+
+
 
 //    public static void main(String[] args) {
 //

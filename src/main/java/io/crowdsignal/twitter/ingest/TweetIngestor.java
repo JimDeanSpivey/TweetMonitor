@@ -6,13 +6,7 @@ import io.crowdsignal.twitter.dataaccess.TweetWritingSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -23,12 +17,8 @@ import twitter4j.TwitterStream;
 /**
  * @author Jimmy Spivey
  */
-@Configuration
-@ComponentScan(basePackages = "io.crowdsignal")
-@EnableAutoConfiguration
-@EnableScheduling
-@EnableAsync
-public class TweetIngestor implements CommandLineRunner {
+@Component
+public class TweetIngestor {
 
     private static final Logger log = LoggerFactory.getLogger(TweetIngestor.class);
 
@@ -51,12 +41,7 @@ public class TweetIngestor implements CommandLineRunner {
         this.tweetWritingSubscriber = tweetWritingSubscriber;
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(TweetIngestor.class, args);
-    }
-
-    @Override
-    public void run(String... args) {
+    public void run() {
         ConnectableFlux<Status> tweets = Flux.<Status>create(emitter -> {
             final StatusListener listener = new TweetListener() {
                 @Override
@@ -72,11 +57,17 @@ public class TweetIngestor implements CommandLineRunner {
             streamInvoker.run();
         }).publish();
 
+//        tweets
+//                .filter(Status::isRetweet)
+//                .subscribe(status -> log.info("Retweet: {}", status.getText().hashCode()));
+
         ConnectableFlux<Status> spamFiltered = tweets
+//                .filter(skipTweetPredicate) //I think user mentions might be okay.
                 .filter(status -> !status.isRetweet())
                 .buffer(1) // One problem with larger values is that more spam could get through on different nodes.
                 .publishOn(Schedulers.elastic())
                 .flatMap(spamFilter)
+                .publishOn(Schedulers.parallel())
                 .publish();
 
         spamFiltered

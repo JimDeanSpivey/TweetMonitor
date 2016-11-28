@@ -8,7 +8,9 @@ import io.crowdsignal.entities.KeywordAlias;
 import io.crowdsignal.twitter.dataaccess.KeywordRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -17,10 +19,12 @@ import java.util.stream.Collectors;
 /**
  * Created by jspivey on 9/10/15.
  */
+@Component
 public class SearchContextProvider {
 
     private Logger log = LoggerFactory.getLogger(SearchContextProvider.class);
 
+    @Autowired
     private KeywordRepo keywordRepo;
 
     @Value("${io.crowdsignal.node.name}")
@@ -29,10 +33,6 @@ public class SearchContextProvider {
     private Collection<Keyword> keywords;
     private Collection<String> flattenedKeywords;
     private Multimap<String,String> keywordsToAliases;
-
-    public SearchContextProvider(KeywordRepo keywordRepo) {
-        this.keywordRepo = keywordRepo;
-    }
 
     public Collection<String> searchTermToName(String searchTerm) {
         return keywordsToAliases.get(searchTerm);
@@ -43,7 +43,7 @@ public class SearchContextProvider {
     }
 
     @Transactional
-    public void init() {
+    public void init() {//TODO: should be able to use lazy loading, this isn't couchdb anymore
         lookupSearchTerms();
         flattenAndIndexTerms();
     }

@@ -50,22 +50,17 @@ public class WordCountIncrementer {
     public void incrementWordCount(String context, Status tweet, String word) {
         String redisKeyPrefix = String.format("%s:%s", WORD_COUNT_NAMESPACE, context);
         String timeBucket = redisKeyGenerator.getTimeBucketKey(
+                //tweet.getCreatedAt(),
                 new Date(),
                 TimeUnit.MINUTES.toMillis(minutes)
         );
         String redisKey = String.format("%s:%s", redisKeyPrefix, timeBucket);
          // consider have 2 variations of keys, one that is inserted into realtime and one that is filtered and batch inserted.
+//        redisAsyncCommands.zincrby(key, 1, word);
         wordCounts.incrementWordCount(timeBucket, redisKey, word);
     }
 
     @Scheduled(fixedRate = 30 * 1000)
-    /**
-     * Runs every 30 seconds and finds buckets that are old enough to be persisted to
-     * Redis and discarded in the JVM memory. It will only persist word counts that are
-     * than a <i>minCount</i>. Word counts that are too small are just discarded. This
-     * memory efficient filtering before persisting to redis, so that low count words do
-     * not have to be found and deleted later.
-     */
     public void persistWords() {
         Date start = new Date();
         log.info("Begin Word Count persistence");
@@ -75,11 +70,9 @@ public class WordCountIncrementer {
                     long elapsed = ChronoUnit.SECONDS.between(
                             bucket.toInstant(), start.toInstant()
                     );
-                    int threshold = minutes * 60 + 5; // 5 minutes = threshold of 305 seconds
+                    int threshold = minutes * 60 + 5;
                     log.debug("Elapsed: {}, Threshold: {}", elapsed, threshold);
-                    // If more time has elapsed beyond the buckets ability to accept new values
-                    // EG: 310 elapsed seconds since bucket's date and  now > 305 threshold
-                    return elapsed > threshold; //TODO: need to make sure this is flushing at the right time but also aggressive enough to persist sooner (more realtime)
+                    return elapsed >= threshold; //TODO: need to make sure this is flushing at the right time but also aggressive enough to persist sooner (more realtime)
                 })
                 .collect(Collectors.toSet()
         );
@@ -105,6 +98,7 @@ public class WordCountIncrementer {
                     wordCounts.removeZsets(b);
                 }
         );
+
         Period period = new Period(
                 new Date().getTime() - start.getTime()
         );

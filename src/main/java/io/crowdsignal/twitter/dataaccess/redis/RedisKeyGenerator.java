@@ -37,8 +37,15 @@ public class RedisKeyGenerator {
         return dateAsKeyDtf.print(millis);
     }
 
+//    public String getTimeBucketKey(Date time, long bucketsize) {
+//        return String.format("%s:%s", namespace, getPrint(millis));
+//    }
+//
     public Date parseDateFromKey(String key) {
         return dateAsKeyDtf.parseDateTime(key).toDate();
     }
+
+
+
 
 }

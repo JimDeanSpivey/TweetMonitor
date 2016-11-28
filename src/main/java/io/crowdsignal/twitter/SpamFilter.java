@@ -52,7 +52,6 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                     return redis.hset(getKey("tweets", hashCode), hashCode+"", "1");
                 })
         );
-        // Should over-active users really be silenced? Maybe they can provide signal.
         Map<Long, RedisFuture<Boolean>> userLookups = tweets.stream().collect(Collectors.toMap(
                 t -> t.getUser().getId(),
                 t -> {
