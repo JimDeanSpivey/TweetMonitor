@@ -34,7 +34,6 @@ public class SpringApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("SpringApplication.run");
-        System.out.println("teeest");
         searchContextProvider.init(); //TODO: move this initilization to spring?
         //tweetPublisher.fl
         tweetIngestor.run();

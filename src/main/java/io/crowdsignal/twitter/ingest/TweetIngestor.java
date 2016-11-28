@@ -48,10 +48,6 @@ public class TweetIngestor {
                 public void onStatus(Status status) {
                     emitter.next(status);
                 }
-                @Override
-                public void onException(Exception ex) {
-                    emitter.error(ex);
-                }
             };
             twitterStream.addListener(listener);
             streamInvoker.run();

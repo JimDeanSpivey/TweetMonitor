@@ -32,6 +32,11 @@ public abstract class TweetListener implements StatusListener {
     }
 
     @Override
+    public void onException(Exception ex) {
+        log.error("Exception while streaming twitter API", ex);
+    }
+
+    @Override
     public void onScrubGeo(long userId, long upToStatusId) {
     }
 
