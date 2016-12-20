@@ -1,5 +1,6 @@
 package io.crowdsignal.entities;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 /**
@@ -7,6 +8,7 @@ import java.util.Date;
  */
 public abstract class AuditColumnEntity {
 
+    @Column(insertable = false, updatable = false)
     private Date created;
     private Date updated;
 

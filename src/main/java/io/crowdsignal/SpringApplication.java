@@ -6,15 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@Configuration
-@ComponentScan(basePackages = "io.crowdsignal")
-@EnableAutoConfiguration
+@SpringBootApplication
+//@Configuration
+//@ComponentScan(basePackages = "io.crowdsignal")
+//@EnableAutoConfiguration
 @EnableScheduling
 @EnableAsync
 public class SpringApplication implements CommandLineRunner {
@@ -35,7 +34,6 @@ public class SpringApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("SpringApplication.run");
         searchContextProvider.init(); //TODO: move this initilization to spring?
-        //tweetPublisher.fl
         tweetIngestor.run();
     }
 }

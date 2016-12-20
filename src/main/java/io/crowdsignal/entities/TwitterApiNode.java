@@ -1,12 +1,7 @@
 package io.crowdsignal.entities;
 
+import javax.persistence.*;
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 
 /**
  * @author Jimmy Spivey
@@ -22,11 +17,11 @@ public class TwitterApiNode extends AuditColumnEntity {
     private TwitterApiToken token;
     @ManyToMany
     @JoinTable(
-        name="keyword_twitter_api_node",
+        name="city_twitter_api_node",
         joinColumns = @JoinColumn(name="api_node_id"),
-        inverseJoinColumns = @JoinColumn(name="keyword_id")
+        inverseJoinColumns = @JoinColumn(name="city_id")
     )
-    private Set<Keyword> keywords;
+    private Set<City> cities;
 
     public Integer getId() {
         return this.id;
@@ -40,11 +35,11 @@ public class TwitterApiNode extends AuditColumnEntity {
     public void setName(String name) {
         this.name = name;
     }
-    public Set<Keyword> getKeywords() {
-        return this.keywords;
+    public Set<City> getCities() {
+        return this.cities;
     }
-    public void setKeywords(Set<Keyword> keywords) {
-        this.keywords = keywords;
+    public void setCities(Set<City> cities) {
+        this.cities = cities;
     }
     public TwitterApiToken getToken() {
         return this.token;

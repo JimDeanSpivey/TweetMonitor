@@ -7,22 +7,25 @@ import javax.persistence.Id;
  * @author Jimmy Spivey
  */
 @Entity
-public class KeywordType {
+public class State {
 
     @Id
     private String code;
-    private String description;
+    private String name;
 
     public String getCode() {
-        return this.code;
+        return code;
     }
+
     public void setCode(String code) {
         this.code = code;
     }
-    public String getDescription() {
-        return this.description;
+
+    public String getName() {
+        return name;
     }
-    public void setDescription(String description) {
-        this.description = description;
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

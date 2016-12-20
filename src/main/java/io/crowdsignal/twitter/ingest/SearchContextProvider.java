@@ -1,11 +1,7 @@
 package io.crowdsignal.twitter.ingest;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import io.crowdsignal.entities.Keyword;
-import io.crowdsignal.entities.KeywordAlias;
-import io.crowdsignal.twitter.dataaccess.KeywordRepo;
+import io.crowdsignal.entities.City;
+import io.crowdsignal.twitter.dataaccess.CityRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +10,9 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by jspivey on 9/10/15.
@@ -25,17 +23,18 @@ public class SearchContextProvider {
     private Logger log = LoggerFactory.getLogger(SearchContextProvider.class);
 
     @Autowired
-    private KeywordRepo keywordRepo;
+    private CityRepo cityRepo;
+//    private TwitterApiNodeRepo twitterApiNodeRepo;
 
     @Value("${io.crowdsignal.node.name}")
     private String nodeName;
 
-    private Collection<Keyword> keywords;
+    private Collection<City> cities;
     private Collection<String> flattenedKeywords;
-    private Multimap<String,String> keywordsToAliases;
+    private Map<String,String> keywordsToCity = new HashMap<>();
 
-    public Collection<String> searchTermToName(String searchTerm) {
-        return keywordsToAliases.get(searchTerm);
+    public String keywordToCity(String keyword) {
+        return keywordsToCity.get(keyword);
     }
 
     public Collection<String> allKeywords() {
@@ -49,30 +48,50 @@ public class SearchContextProvider {
     }
 
     private void lookupSearchTerms() {
-        keywords = keywordRepo.findByNodes_name(nodeName);
+        log.debug("Looking up cities for {}", nodeName);
+        cities = cityRepo.findByNodes_name(nodeName);
+        log.debug("Found {} cities", cities.size());
     }
 
     private void flattenAndIndexTerms() {
-        Multimap<String,String> indexed = ArrayListMultimap.create();
-        ArrayList<String> flattened = keywords.stream().flatMap(e -> {
-            Set<String> aliases = new HashSet<>();
-            aliases.add(e.getName());
-            if (e.getAliases() != null)
-                aliases.addAll(getAliasesAsStrings(e.getAliases()));
-            // Also build map of aliases
-            aliases.forEach(a -> indexed.put(a, e.getName()));
-            // Return flattened stream (all names + aliases as a single stream)
-            return aliases.stream();
-        }).collect(Collectors.toCollection(ArrayList::new));
-
+        ArrayList<String> flattened = cities.stream()
+                .flatMap(extractTerms())
+                .collect(Collectors.toCollection(ArrayList::new));
         flattenedKeywords = Collections.unmodifiableCollection(flattened);
-        keywordsToAliases = ImmutableMultimap.copyOf(indexed);
     }
 
-    private Set<String> getAliasesAsStrings(Set<KeywordAlias> aliases) {
-            return aliases.stream()
-                .map(Object::toString)
-                .collect(Collectors.toSet());
+    private Function<City, Stream<? extends String>> extractTerms() {
+        return e -> {
+            Set<String> terms = new HashSet<>();
+            // Add state/country code variations
+            if (!e.getRequireCountry() && !e.getRequireState()) {
+                terms.add(e.getName());
+                keywordsToCity.put(e.getName(), e.getName());
+            } else if (e.getRequireCountry()) {
+                internalAdd(terms, e.getName(), e.getCountry().getName());
+            } else if (e.getRequireState()) {
+                internalAdd(terms, e.getName(), e.getState().getName());
+                internalAdd(terms, e.getName(), e.getState().getCode());
+            }
+            // Add aliases
+            //terms.add(e.getName());
+        //            if (e.getAliases() != null)
+        //                aliases.addAll(getAliasesAsStrings(e.getAliases()));
+            // Return flattened stream (all names + aliases as a single stream)
+            return terms.stream();
+        };
     }
+
+    private void internalAdd(Set<String> terms, String city, String region) {
+        String withRegion = String.format("%s %s", city, region);
+        terms.add(withRegion);
+        keywordsToCity.put(withRegion, city);
+    }
+
+//    private Set<String> getAliasesAsStrings(Set<KeywordAlias> aliases) {
+//            return aliases.stream()
+//                .map(Object::toString)
+//                .collect(Collectors.toSet());
+//    }
 
 }

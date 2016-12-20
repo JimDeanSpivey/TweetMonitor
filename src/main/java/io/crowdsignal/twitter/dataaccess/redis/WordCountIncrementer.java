@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import twitter4j.Status;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -40,23 +39,19 @@ public class WordCountIncrementer {
     private RedisKeyGenerator redisKeyGenerator;
     private WordCounts wordCounts;
 
-
     public WordCountIncrementer(RedisAsyncCommands<String, String> redisAsyncCommands, RedisKeyGenerator redisKeyGenerator, WordCounts wordCounts) {
         this.redisAsyncCommands = redisAsyncCommands;
         this.redisKeyGenerator = redisKeyGenerator;
         this.wordCounts = wordCounts;
     }
 
-    public void incrementWordCount(String context, Status tweet, String word) {
+    public void incrementWordCount(String context, String word) {
         String redisKeyPrefix = String.format("%s:%s", WORD_COUNT_NAMESPACE, context);
         String timeBucket = redisKeyGenerator.getTimeBucketKey(
-                //tweet.getCreatedAt(),
                 new Date(),
                 TimeUnit.MINUTES.toMillis(minutes)
         );
         String redisKey = String.format("%s:%s", redisKeyPrefix, timeBucket);
-         // consider have 2 variations of keys, one that is inserted into realtime and one that is filtered and batch inserted.
-//        redisAsyncCommands.zincrby(key, 1, word);
         wordCounts.incrementWordCount(timeBucket, redisKey, word);
     }
 

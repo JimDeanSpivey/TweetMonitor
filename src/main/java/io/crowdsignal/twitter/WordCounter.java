@@ -39,19 +39,22 @@ public class WordCounter implements Consumer<Status> {
         String text = tweet.getText();
         List<String> tokens = Arrays.asList(text.split(" "));
         // Extract cities (contexts)
+        //TODO: need to recreate how twitter matches terms like Washington. DC
         Set<String> citiesFound = searchContextProvider.allKeywords().stream()
                 .filter(tweet.getText()::contains)
                 .collect(Collectors.toSet());
-        citiesFound.forEach(c -> persistWordCounts(tokens, c, tweet));
+        citiesFound.forEach(c -> persistWordCounts(
+                tokens,
+                searchContextProvider.keywordToCity(c))
+        );
     }
 
-    private void persistWordCounts(List<String> tokens, String city, Status tweet) {
+    private void persistWordCounts(List<String> tokens, String city) {
         log.trace("Persisting word counts");
         TObjectShortMap wordsWithCounts = wordParser.getWordsWithCounts(tokens);
         wordsWithCounts.forEachEntry((k, v) -> {
                     countRepo.incrementWordCount(
                             city,
-                            tweet,
                             (String) k
                     );
                     return true;

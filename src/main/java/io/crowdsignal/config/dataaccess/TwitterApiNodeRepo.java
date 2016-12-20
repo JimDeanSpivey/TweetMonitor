@@ -9,5 +9,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface TwitterApiNodeRepo extends CrudRepository<TwitterApiNode, Integer> {
 
     TwitterApiNode findByName(String name);
-
 }
