@@ -58,20 +58,4 @@ public class WordCounts {
         wordCounts.remove(bucket);
     }
 
-    //TODO: wait, why remove the word counts? Juts persist the ones that meet the threshold and drop references for GC
-//    public void removeLowWordCounts(String bucket, int threshold) {
-//        //remove low count words in all word counts
-//        this.getZsets(bucket).forEachValue(1, zset -> {
-//            zset.forEachEntry(1, e -> {
-//                String word = e.getKey();
-//                Integer score = e.getValue();
-//                if (score <= threshold) {
-//                    log.trace("Removing {} from internal zset {}", word, zset);
-//                    zset.remove(word);
-//                }
-//            });
-//        });
-//    }
-
-
 }

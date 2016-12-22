@@ -24,7 +24,6 @@ public class SearchContextProvider {
 
     @Autowired
     private CityRepo cityRepo;
-//    private TwitterApiNodeRepo twitterApiNodeRepo;
 
     @Value("${io.crowdsignal.node.name}")
     private String nodeName;
@@ -71,7 +70,6 @@ public class SearchContextProvider {
                 internalAdd(terms, e.getName(), e.getCountry().getName());
             } else if (e.getRequireState()) {
                 internalAdd(terms, e.getName(), e.getState().getName());
-                internalAdd(terms, e.getName(), e.getState().getCode());
             }
             // Add aliases
             //terms.add(e.getName());

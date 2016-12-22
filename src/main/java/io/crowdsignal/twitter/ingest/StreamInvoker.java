@@ -29,10 +29,9 @@ public class StreamInvoker {
         log.info("Tracking words: {}", String.join(",", keywords));
         FilterQuery filterQuery = new FilterQuery();
         filterQuery.language("en");
-        filterQuery.track(keywords.toArray(new String[keywords.size()])); //TODO: consider not tracking retweets, if this is possible for streaming api
+        filterQuery.track(keywords.toArray(new String[keywords.size()]));
         twitterStream.filter(filterQuery);
         log.debug("Stream invoked");
-
 
         // examine redis here for absence of any new keys, and call twitterStream.filter again if it went silent (no rows)
         // TODO: should this be done in a new class. Thread chaperoning is a separate concern.

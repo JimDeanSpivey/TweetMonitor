@@ -11,9 +11,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-//@Configuration
-//@ComponentScan(basePackages = "io.crowdsignal")
-//@EnableAutoConfiguration
 @EnableScheduling
 @EnableAsync
 public class SpringApplication implements CommandLineRunner {

@@ -21,8 +21,6 @@ import javax.transaction.Transactional;
 @Configuration
 public class ResourceBeans {
 
-    // TODO: put these attached resource type beans in their own file to make stubbing easier
-
     // redis
     @Bean
     public RedisClient redisClient(
