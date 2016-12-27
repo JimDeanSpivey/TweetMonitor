@@ -29,14 +29,17 @@ import java.util.stream.Collectors;
 public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
 
     private static final Logger log = LoggerFactory.getLogger(SpamFilter.class);
-    public static final String KEY_NAMESPACE = "crowdsig:twitter:existing";
+    public static final String KEY_NAMESPACE = "twitter:existing";
+    public static final Integer REDIS_HASH_SIZE = 100;
 
     private RedisAsyncCommands<String, String> redis;
     private RedisKeyGenerator redisKeyGenerator;
     private StringUtils stringUtils;
 
-    @Value("${io.cs.redis.spamfilter.bucket.size.minutes}")
-    private int minutes;
+    @Value("${io.cs.redis.spamfilter.tweet.bucket.size.minutes}")
+    private int tweetMinutes;
+    @Value("${io.cs.redis.spamfilter.user.bucket.size.minutes}")
+    private int userMinutes;
     @Value("${io.cs.redis.expected.tweets.persecond}")
     private int tweetsPerSecond;
 
@@ -56,14 +59,14 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                     int hashCode = stringUtils.trimUrlsAndHashTags(
                             t.getText()
                     ).hashCode();
-                    return redis.hset(getKey("tweets", hashCode), hashCode+"", "1");
+                    return redis.hset(getKey("tweets", hashCode, tweetMinutes), hashCode+"", "1");
                 })
         );
         Map<Long, RedisFuture<Boolean>> userLookups = tweets.stream().collect(Collectors.toMap(
                 t -> t.getUser().getId(),
                 t -> {
                     long id = t.getUser().getId();
-                    return redis.hset(getKey("userids", id), id + "", "1");
+                    return redis.hset(getKey("userids", id, userMinutes), id + "", "1");
                 })
         );
         redis.flushCommands();
@@ -89,17 +92,19 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                 throw new IllegalStateException(e);
             }
         }).collect(Collectors.toList());
-        log.trace("{} tweets out of {} were not spam", notSpam.size(), tweets.size());
+        log.debug("{} tweets out of {} were not spam", notSpam.size(), tweets.size());
         return Flux.fromIterable(notSpam);
     }
 
-    private String getKey(String postfix, long value) {
+    private String getKey(String postfix, long value, int minutes) {
         String namespace = getKeyNamespace(postfix);
         String base = redisKeyGenerator.getTimeBucketKey(
                 namespace, new Date(), TimeUnit.MINUTES.toMillis(minutes)
         );
         // 60 seconds * bucketsize(in minutes) * tweetsPerSecond / 100 (redis hash size)
-        return String.format("%s:%d", base, value % (60 * minutes * tweetsPerSecond / 100));
+        return String.format("%s:%d", base,
+                value % (60 * minutes * tweetsPerSecond / REDIS_HASH_SIZE)
+        );
     }
 
     private String getKeyNamespace(String postfix) {

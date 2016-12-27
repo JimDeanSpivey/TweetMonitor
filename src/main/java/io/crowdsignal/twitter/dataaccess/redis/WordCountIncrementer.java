@@ -96,7 +96,6 @@ public class WordCountIncrementer {
                     wordCounts.removeZsets(b);
                 }
         );
-
         Period period = new Period(
                 new Date().getTime() - start.getTime()
         );

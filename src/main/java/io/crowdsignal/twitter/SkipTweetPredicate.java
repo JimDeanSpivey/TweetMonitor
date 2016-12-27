@@ -17,13 +17,13 @@ public class SkipTweetPredicate implements Predicate<Status> {
 
     @Override
     public boolean test(Status tweet) {
-        if (tweet.isRetweet()) { //TODO: should be able to filter these out in the filter params ?
+        if (tweet.isRetweet()) {
             log.trace("Is retweet, filtering out.");
             return false; //TODO: handle retweets later. Just for now, I don't want to store them in the main count
         }
         if (tweet.getUserMentionEntities() != null && tweet.getUserMentionEntities().length != 0) {
             log.trace("Contains user mention, filtering out.");
-            return false; //Discard any tweets with user mentions
+            return false;
         }
         return true;
     }

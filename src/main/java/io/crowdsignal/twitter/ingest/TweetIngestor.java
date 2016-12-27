@@ -1,5 +1,6 @@
 package io.crowdsignal.twitter.ingest;
 
+import io.crowdsignal.twitter.SkipTweetPredicate;
 import io.crowdsignal.twitter.SpamFilter;
 import io.crowdsignal.twitter.WordCounter;
 import io.crowdsignal.twitter.dataaccess.TweetWritingSubscriber;
@@ -32,13 +33,15 @@ public class TweetIngestor {
     private TwitterStream twitterStream;
     private WordCounter wordCounter;
     private TweetWritingSubscriber tweetWritingSubscriber;
+    private SkipTweetPredicate skipTweetPredicate;
 
-    public TweetIngestor(StreamInvoker streamInvoker, SpamFilter spamFilter, TwitterStream twitterStream, WordCounter wordCounter, TweetWritingSubscriber tweetWritingSubscriber) {
+    public TweetIngestor(StreamInvoker streamInvoker, SpamFilter spamFilter, TwitterStream twitterStream, WordCounter wordCounter, TweetWritingSubscriber tweetWritingSubscriber, SkipTweetPredicate skipTweetPredicate) {
         this.streamInvoker = streamInvoker;
         this.spamFilter = spamFilter;
         this.twitterStream = twitterStream;
         this.wordCounter = wordCounter;
         this.tweetWritingSubscriber = tweetWritingSubscriber;
+        this.skipTweetPredicate = skipTweetPredicate;
     }
 
     public void run() {
@@ -58,8 +61,7 @@ public class TweetIngestor {
 //                .subscribe(status -> log.info("Retweet: {}", status.getText().hashCode()));
 
         ConnectableFlux<Status> spamFiltered = tweets
-//                .filter(skipTweetPredicate) //I think user mentions might be okay.
-                .filter(status -> !status.isRetweet())
+                .filter(skipTweetPredicate)
                 .buffer(1) // One problem with larger values is that more spam could get through on different nodes.
                 .publishOn(Schedulers.elastic())
                 .flatMap(spamFilter)
