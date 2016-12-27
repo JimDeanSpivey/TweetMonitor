@@ -1,8 +1,12 @@
 package io.crowdsignal.twitter.ingest.parse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +16,8 @@ import java.util.regex.Pattern;
  */
 @Component
 public class StringUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(StringUtils.class);
 
     private static Set<Character> punctuations = new HashSet<>();
 
@@ -63,52 +69,48 @@ public class StringUtils {
     }
 
     private static final Pattern CAPTURE_MESSAGE = Pattern.compile(
-            "^(?:https:\\/\\/t\\.co\\/[a-zA-Z0-9]* |#[^ ]* )*" +
-                    "(.*?)" +
-                    "(?: https:\\/\\/t\\.co\\/[a-zA-Z0-9]*| #[^ ]*)*?$"
+    "^(?:https://t\\.co/[a-zA-Z0-9]*[ \\n]+|#[^ ]*[ \\n]+)*(.*?)(?:[\\n ]+https://t\\.co/[a-zA-Z0-9]*|[ \\n]+#[^ ]*)*?$"
     );
 
     public String trimUrlsAndHashTags(String tweet) {
         Matcher matcher = CAPTURE_MESSAGE.matcher(tweet);
         if (matcher.find()) {
-            return matcher.group(1);
+            String group = matcher.group(1);
+            log.trace("Trimming entities from tweet:");
+            log.trace("{}", tweet);
+            log.trace("{}", group);
+            return group;
         }
         return tweet;
     }
-//
-//
-//
-//
-//        String without;
-//        List<String> tokens = Arrays.asList(tweet.split(" "));
-//        int start = 0;
-//        for (String token : tokens) {
-//            if (isEntity(token)) {
-//                start += token.length() + 1;
-//            } else {
-//                without = tweet.substring(start, tweet.length());
-//                break;
-//            }
-//        }
 
-//        Set<Integer> wordPositions = new HashSet<>();
-//        Set<Integer> entityPositions = new HashSet<>();
-//        boolean foundWord = false;
-//        boolean foundEntity = false;
-//        List<String> tokens = Arrays.asList(tweet.split(" "));
-//        for (
-//                String token : tokens
-////                int pos = 0;
-////                pos < tweet.length() && pos != -1;
-////                pos = tweet.indexOf(" ", pos)
-//                ) {
-//            if (token.startsWith("#") || TWITTER_URL.matcher(tweet).find()) {
-//                if (foundWord)
-//            }
-//        }
-//    }
-//
-//    private boolean isEntity(String token) {
-//        token.startsWith("#") || TWITTER_URL.matcher(token).find());
-//    }
+    /**
+     * Produces a new string with all the capture words separated by a single
+     * space, and all twitter entities removed (Urls and hashtags).
+     * @param tweet
+     * @return
+     */
+    public String withoutEntities(String tweet) {
+        List<String> tokens = Arrays.asList(tweet.split("[ \\n]+"));
+        StringBuilder result = new StringBuilder();
+        for (String token : tokens) {
+            if (!isEntity(token)) {
+                result.append(token+ " ");
+            }
+        }
+        if (result.length() > 0) {
+            result.deleteCharAt(result.length()-1);
+        }
+        return result.toString();
+    }
+
+    private static final Pattern IS_ENTITY = Pattern.compile(
+            "https://t\\.co/[a-zA-Z0-9]*|[ \\n]+|#[^ ]*"
+    );
+
+    private boolean isEntity(String token) {
+        Matcher matcher = IS_ENTITY.matcher(token);
+        return matcher.find();
+    }
+
 }

@@ -92,7 +92,7 @@ public class WordParser {
 
         m.find();
         results.add(m.group(1));
-        int lastSize = m.group(1).split(" ")[1].length();
+        int lastSize = m.group(1).split("[ \\n]+")[1].length();
 
         while (m.find(m.end(1)-lastSize)) {
             String adjacent = m.group(1);

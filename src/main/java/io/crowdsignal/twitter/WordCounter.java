@@ -37,7 +37,7 @@ public class WordCounter implements Consumer<Status> {
     public void accept(Status tweet) {
         //TODO: seems like the raw text needs to be HTML escaped
         String text = tweet.getText();
-        List<String> tokens = Arrays.asList(text.split(" "));
+        List<String> tokens = Arrays.asList(text.split("[ \\n]+"));
         // Extract cities (contexts)
         //TODO: need to recreate how twitter matches terms like Washington. DC
         Set<String> citiesFound = searchContextProvider.allKeywords().stream()

@@ -49,4 +49,16 @@ public class StringUtilsTest {
         );
     }
 
+
+    @Test
+    public void testWithoutEntities() throws Exception {
+        String without;
+        final String EXPECTED =
+                "The best cosplay costumes saw at London Comic Con in 2016";
+        without = su.withoutEntities(
+                "#bah #bah The best cosplay https://t.co/R1v7KketMy costumes #we saw at London Comic Con in 2016 https://t.co/R1v7KketMy https://t.co/R1v7KketMy"
+        );
+        Assert.assertEquals(EXPECTED, without);
+    }
+
 }

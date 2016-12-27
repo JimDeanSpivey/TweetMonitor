@@ -56,7 +56,7 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
         Map<Long, RedisFuture<Boolean>> tweetLookups = tweets.stream().collect(Collectors.toMap(
                 t -> t.getId(),
                 t -> {
-                    int hashCode = stringUtils.trimUrlsAndHashTags(
+                    int hashCode = stringUtils.withoutEntities(
                             t.getText()
                     ).hashCode();
                     return redis.hset(getKey("tweets", hashCode, tweetMinutes), hashCode+"", "1");
@@ -80,7 +80,7 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                 Boolean newTweet = tweetLookups.get(tweet.getId()).get();
                 Boolean newUser = userLookups.get(tweet.getUser().getId()).get();
                 if (!newTweet) {
-                    log.trace("Spam Tweet: {}", tweet.getId());
+                    log.trace("Spam Tweet: {}", tweet.getText());
                 }
                 if (!newUser) {
                     log.trace("Spam User: {}", tweet.getUser().getName());

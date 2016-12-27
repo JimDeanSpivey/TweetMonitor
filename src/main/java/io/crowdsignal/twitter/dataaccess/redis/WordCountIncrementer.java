@@ -71,9 +71,7 @@ public class WordCountIncrementer {
                 })
                 .collect(Collectors.toSet()
         );
-        if (!buckets.isEmpty()) {
-            log.info("Persisting {} bucket entries", buckets.size());
-        }
+        //TODO: log/better document/refactor here. What is is persisting (at a top level) ?
         buckets.stream()
                 .forEach( b -> {
                     wordCounts.getZsets(b).forEachEntry(1, zset -> {
