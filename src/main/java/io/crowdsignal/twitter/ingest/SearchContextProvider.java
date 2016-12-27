@@ -41,7 +41,7 @@ public class SearchContextProvider {
     }
 
     @Transactional
-    public void init() {//TODO: should be able to use lazy loading, this isn't couchdb anymore
+    public void init() { //TODO: should be able to use lazy loading, this isn't couchdb anymore
         lookupSearchTerms();
         flattenAndIndexTerms();
     }
@@ -67,7 +67,7 @@ public class SearchContextProvider {
                 terms.add(e.getName());
                 keywordsToCity.put(e.getName(), e.getName());
             } else if (e.getRequireCountry()) {
-                internalAdd(terms, e.getName(), e.getCountry().getName());
+                internalAdd(terms, e.getName(), e.getCountry().getNicename());
             } else if (e.getRequireState()) {
                 internalAdd(terms, e.getName(), e.getState().getName());
             }

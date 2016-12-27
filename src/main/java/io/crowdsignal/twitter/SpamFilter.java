@@ -4,6 +4,7 @@ import com.lambdaworks.redis.LettuceFutures;
 import com.lambdaworks.redis.RedisFuture;
 import com.lambdaworks.redis.api.async.RedisAsyncCommands;
 import io.crowdsignal.twitter.dataaccess.redis.RedisKeyGenerator;
+import io.crowdsignal.twitter.ingest.parse.StringUtils;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +33,19 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
 
     private RedisAsyncCommands<String, String> redis;
     private RedisKeyGenerator redisKeyGenerator;
+    private StringUtils stringUtils;
 
     @Value("${io.cs.redis.spamfilter.bucket.size.minutes}")
     private int minutes;
     @Value("${io.cs.redis.expected.tweets.persecond}")
     private int tweetsPerSecond;
 
-    public SpamFilter(RedisAsyncCommands<String, String> redis, RedisKeyGenerator redisKeyGenerator) {
+    public SpamFilter(RedisAsyncCommands<String, String> redis,
+                      RedisKeyGenerator redisKeyGenerator,
+                      StringUtils stringUtils) {
         this.redis = redis;
         this.redisKeyGenerator = redisKeyGenerator;
+        this.stringUtils = stringUtils;
     }
 
     @Override
@@ -48,7 +53,9 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
         Map<Long, RedisFuture<Boolean>> tweetLookups = tweets.stream().collect(Collectors.toMap(
                 t -> t.getId(),
                 t -> {
-                    int hashCode = t.getText().hashCode();
+                    int hashCode = stringUtils.trimUrlsAndHashTags(
+                            t.getText()
+                    ).hashCode();
                     return redis.hset(getKey("tweets", hashCode), hashCode+"", "1");
                 })
         );

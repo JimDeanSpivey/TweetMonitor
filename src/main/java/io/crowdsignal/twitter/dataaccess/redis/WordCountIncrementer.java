@@ -58,7 +58,7 @@ public class WordCountIncrementer {
     @Scheduled(fixedRate = 30 * 1000)
     public void persistWords() {
         Date start = new Date();
-        log.info("Begin Word Count persistence");
+        log.debug("Begin Word Count persistence");
         Set<String> buckets = wordCounts.getAllBuckets().stream()
                 .filter(b -> {
                     Date bucket = redisKeyGenerator.parseDateFromKey(b);
@@ -71,6 +71,9 @@ public class WordCountIncrementer {
                 })
                 .collect(Collectors.toSet()
         );
+        if (!buckets.isEmpty()) {
+            log.info("Persisting {} bucket entries", buckets.size());
+        }
         buckets.stream()
                 .forEach( b -> {
                     wordCounts.getZsets(b).forEachEntry(1, zset -> {
@@ -97,7 +100,7 @@ public class WordCountIncrementer {
         Period period = new Period(
                 new Date().getTime() - start.getTime()
         );
-        log.info("End Word Count persistence. Running time: {}",
+        log.debug("End Word Count persistence. Running time: {}",
                 ISOPeriodFormat.standard().print(period)
         );
     }

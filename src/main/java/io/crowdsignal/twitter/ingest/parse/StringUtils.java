@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by jspivey on 7/27/15.
@@ -59,4 +61,54 @@ public class StringUtils {
                         ))
                 );
     }
+
+    private static final Pattern CAPTURE_MESSAGE = Pattern.compile(
+            "^(?:https:\\/\\/t\\.co\\/[a-zA-Z0-9]* |#[^ ]* )*" +
+                    "(.*?)" +
+                    "(?: https:\\/\\/t\\.co\\/[a-zA-Z0-9]*| #[^ ]*)*?$"
+    );
+
+    public String trimUrlsAndHashTags(String tweet) {
+        Matcher matcher = CAPTURE_MESSAGE.matcher(tweet);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return tweet;
+    }
+//
+//
+//
+//
+//        String without;
+//        List<String> tokens = Arrays.asList(tweet.split(" "));
+//        int start = 0;
+//        for (String token : tokens) {
+//            if (isEntity(token)) {
+//                start += token.length() + 1;
+//            } else {
+//                without = tweet.substring(start, tweet.length());
+//                break;
+//            }
+//        }
+
+//        Set<Integer> wordPositions = new HashSet<>();
+//        Set<Integer> entityPositions = new HashSet<>();
+//        boolean foundWord = false;
+//        boolean foundEntity = false;
+//        List<String> tokens = Arrays.asList(tweet.split(" "));
+//        for (
+//                String token : tokens
+////                int pos = 0;
+////                pos < tweet.length() && pos != -1;
+////                pos = tweet.indexOf(" ", pos)
+//                ) {
+//            if (token.startsWith("#") || TWITTER_URL.matcher(tweet).find()) {
+//                if (foundWord)
+//            }
+//        }
+//    }
+//
+//    private boolean isEntity(String token) {
+//        token.startsWith("#") || TWITTER_URL.matcher(token).find());
+//    }
 }
