@@ -57,7 +57,9 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
                 t -> t.getId(),
                 t -> {
                     int hashCode = stringUtils.withoutEntities(
-                            t.getText()
+                            stringUtils.whiteOutSpecials(
+                                t.getText()
+                            )
                     ).hashCode();
                     return redis.hset(getKey("tweets", hashCode, tweetMinutes), hashCode+"", "1");
                 })

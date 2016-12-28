@@ -104,6 +104,16 @@ public class StringUtils {
         return result.toString();
     }
 
+    /**
+     * Replaces all ASCII special characters with white space.
+     * eg: blah..blah becomes: blah  blah
+     * @param str
+     * @return
+     */
+    public String whiteOutSpecials(String str) {
+        return str.replaceAll("[!-/:-@\\[-`{-~]", " ");
+    }
+
     private static final Pattern IS_ENTITY = Pattern.compile(
             "https://t\\.co/[a-zA-Z0-9]*|[ \\n]+|#[^ ]*"
     );

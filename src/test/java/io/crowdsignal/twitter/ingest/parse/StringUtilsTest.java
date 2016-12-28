@@ -61,4 +61,15 @@ public class StringUtilsTest {
         Assert.assertEquals(EXPECTED, without);
     }
 
+    @Test
+    public void testWhiteOutSpecials() throws Exception {
+        String without;
+        final String EXPECTED =
+                "blah     blah";
+        without = su.whiteOutSpecials(
+                "blah!\"<]~blah"
+        );
+        Assert.assertEquals(EXPECTED, without);
+    }
+
 }
