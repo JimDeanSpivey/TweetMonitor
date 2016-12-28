@@ -66,22 +66,6 @@ public class StringUtils {
                 );
     }
 
-    private static final Pattern CAPTURE_MESSAGE = Pattern.compile(
-    "^(?:https://t\\.co/[a-zA-Z0-9]*[ \\n]+|#[^ ]*[ \\n]+)*(.*?)(?:[\\n ]+https://t\\.co/[a-zA-Z0-9]*|[ \\n]+#[^ ]*)*?$"
-    );
-
-    public String trimUrlsAndHashTags(String tweet) {
-        Matcher matcher = CAPTURE_MESSAGE.matcher(tweet);
-        if (matcher.find()) {
-            String group = matcher.group(1);
-            log.trace("Trimming entities from tweet:");
-            log.trace("{}", tweet);
-            log.trace("{}", group);
-            return group;
-        }
-        return tweet;
-    }
-
     /**
      * Produces a new string with all the capture words separated by a single
      * space, and all twitter entities removed (Urls and hashtags).
@@ -89,24 +73,27 @@ public class StringUtils {
      * @return
      */
     public String withoutEntities(String tweet) {
-        String result = tweet.replaceAll("#.*?[\\s\\n]", "");
-        result = result.replaceAll("https?://t.co/[A-Za-z0-9]{10}[\\s\\n]", "");
-        result = result.replaceAll("[\\s\\n]https?://t.co/[A-Za-z0-9]{10}", "");
+        String result;
+        result = tweet.replaceAll("#[^\\s\\n]*?[\\s\\n]", "");
+        result = result.replaceAll("[\\s\\n]#[^\\s\\n]*", "");
+        result = result.replaceAll("https?://t.co/[\\w\\d]{10}[\\s\\n]", "");
+        result = result.replaceAll("[\\s\\n]https?://t.co/[\\w\\d]{10}", "");
         return result;
     }
 
     /**
-     * Replaces all ASCII special characters with white space.
+     * Replaces all special characters with white space. Works on unicode
+     * characters as well.
      * eg: blah..blah becomes: blah  blah
      * @param str
      * @return
      */
     public String whiteOutSpecials(String str) {
-        return str.replaceAll("[!-/:-@\\[-`{-~]", " ");
+        return str.replaceAll("[^\\p{L}\\d\\s\\n]", " ");
     }
 
     private static final Pattern IS_ENTITY = Pattern.compile(
-            "https://t\\.co/[a-zA-Z0-9]*|[ \\n]+|#[^ ]*"
+            "(?i)https://t\\.co/[\\w\\d]*|[ \\n]+|#[^ ]*"
     );
 
     private boolean isEntity(String token) {
