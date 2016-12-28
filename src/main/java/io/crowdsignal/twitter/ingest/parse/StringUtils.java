@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -66,39 +65,46 @@ public class StringUtils {
                 );
     }
 
+    private static final Pattern HASHTAG_SPACE = Pattern.compile(
+            "#[^\\s\\n]*?[\\s\\n]"
+    );
+    private static final Pattern SPACE_HASHTAG = Pattern.compile(
+            "[\\s\\n]#[^\\s\\n]*"
+    );
+    private static final Pattern TW_URL_SPACE = Pattern.compile(
+            "https?://t.co/[\\w\\d]{10}[\\s\\n]"
+    );
+    private static final Pattern SPACE_TW_URL = Pattern.compile(
+            "[\\s\\n]https?://t.co/[\\w\\d]{10}"
+    );
+    private static final Pattern SPECIAL_CHARS = Pattern.compile(
+            "[^\\p{L}\\d\\s\\n]"
+    );
+
     /**
      * Produces a new string with all the capture words separated by a single
      * space, and all twitter entities removed (Urls and hashtags).
      * @param tweet
      * @return
      */
-    public String withoutEntities(String tweet) {
-        String result;
-        result = tweet.replaceAll("#[^\\s\\n]*?[\\s\\n]", "");
-        result = result.replaceAll("[\\s\\n]#[^\\s\\n]*", "");
-        result = result.replaceAll("https?://t.co/[\\w\\d]{10}[\\s\\n]", "");
-        result = result.replaceAll("[\\s\\n]https?://t.co/[\\w\\d]{10}", "");
+    public String withoutEntities(final String tweet) {
+        String result = tweet;
+        result = HASHTAG_SPACE.matcher(result).replaceAll("");
+        result = SPACE_HASHTAG.matcher(result).replaceAll("");
+        result = TW_URL_SPACE.matcher(result).replaceAll("");
+        result = SPACE_TW_URL.matcher(result).replaceAll("");
         return result;
     }
 
     /**
      * Replaces all special characters with white space. Works on unicode
      * characters as well.
-     * eg: blah..blah becomes: blah  blah
+     * eg: blah..blah becomes: blahblah
      * @param str
      * @return
      */
-    public String whiteOutSpecials(String str) {
-        return str.replaceAll("[^\\p{L}\\d\\s\\n]", " ");
-    }
-
-    private static final Pattern IS_ENTITY = Pattern.compile(
-            "(?i)https://t\\.co/[\\w\\d]*|[ \\n]+|#[^ ]*"
-    );
-
-    private boolean isEntity(String token) {
-        Matcher matcher = IS_ENTITY.matcher(token);
-        return matcher.find();
+    public String withoutSpecials(final String str) {
+        return SPECIAL_CHARS.matcher(str).replaceAll("");
     }
 
 }
