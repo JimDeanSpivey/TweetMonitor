@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,17 +89,10 @@ public class StringUtils {
      * @return
      */
     public String withoutEntities(String tweet) {
-        List<String> tokens = Arrays.asList(tweet.split("[ \\n]+"));
-        StringBuilder result = new StringBuilder();
-        for (String token : tokens) {
-            if (!isEntity(token)) {
-                result.append(token+ " ");
-            }
-        }
-        if (result.length() > 0) {
-            result.deleteCharAt(result.length()-1);
-        }
-        return result.toString();
+        String result = tweet.replaceAll("#.*?[\\s\\n]", "");
+        result = result.replaceAll("https?://t.co/[A-Za-z0-9]{10}[\\s\\n]", "");
+        result = result.replaceAll("[\\s\\n]https?://t.co/[A-Za-z0-9]{10}", "");
+        return result;
     }
 
     /**

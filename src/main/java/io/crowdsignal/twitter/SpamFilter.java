@@ -56,8 +56,8 @@ public class SpamFilter implements Function<List<Status>, Publisher<Status>> {
         Map<Long, RedisFuture<Boolean>> tweetLookups = tweets.stream().collect(Collectors.toMap(
                 t -> t.getId(),
                 t -> {
-                    int hashCode = stringUtils.withoutEntities(
-                            stringUtils.whiteOutSpecials(
+                    int hashCode = stringUtils.whiteOutSpecials(
+                            stringUtils.withoutEntities(
                                 t.getText()
                             )
                     ).hashCode();
