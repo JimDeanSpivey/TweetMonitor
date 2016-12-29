@@ -65,20 +65,25 @@ public class StringUtils {
                 );
     }
 
+    private static final String HASHTAG = "#[^\\s]+";
+    private static final String TW_URL = "https?://t.co/[\\w\\d]{10}";
     private static final Pattern HASHTAG_SPACE = Pattern.compile(
-            "#[^\\s\\n]*?[\\s\\n]"
+            HASHTAG+"\\s"
     );
     private static final Pattern SPACE_HASHTAG = Pattern.compile(
-            "[\\s\\n]#[^\\s\\n]*"
+            "\\s"+HASHTAG
     );
     private static final Pattern TW_URL_SPACE = Pattern.compile(
-            "https?://t.co/[\\w\\d]{10}[\\s\\n]"
+            TW_URL+"\\s"
+    );
+    private static final Pattern TW_URL_NO_SPACE = Pattern.compile(
+            TW_URL
     );
     private static final Pattern SPACE_TW_URL = Pattern.compile(
-            "[\\s\\n]https?://t.co/[\\w\\d]{10}"
+            "\\s"+TW_URL
     );
     private static final Pattern SPECIAL_CHARS = Pattern.compile(
-            "[^\\p{L}\\d\\s\\n]"
+            "[^\\p{L}\\d\\s]"
     );
 
     /**
@@ -93,6 +98,7 @@ public class StringUtils {
         result = SPACE_HASHTAG.matcher(result).replaceAll("");
         result = TW_URL_SPACE.matcher(result).replaceAll("");
         result = SPACE_TW_URL.matcher(result).replaceAll("");
+        result = TW_URL_NO_SPACE.matcher(result).replaceAll("");
         return result;
     }
 
