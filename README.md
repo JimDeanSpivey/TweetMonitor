@@ -1,3 +1,5 @@
+I wrote a side project that scans the twitter API for events in cities with a population of over 100,000. This way, any news that begins to trend can be noticed even before it is put on a major news network's front page (eg: cnn.com's front page). It does this by counting all of the words, for each city, in 5 minute buckets. The twitter ingestor is written in Java 8, using Spring Boot and Project Reactor. Persitence is mostly redis, with postgressql being used just to save the original tweet for reference. Redis is used to store the word counts, and also there is a spam filter. The spam filter works by getting the Java hashcode of the original tweet stream into redis (while also removing characters that spammers might add to the front/end such as URLs or odd punctations). Any incoming tweet then looks up this redis hash to see if it is a duplicate tweet (if it is, it is ignored). Also, Terraform and ansible were used to fully setup the project in development and production. Ruby scripts were used to automate various things, such as extracting a city database from a csv file into Postgresql.
+
 ** Dependencies**
 
 Gradle 2.*
